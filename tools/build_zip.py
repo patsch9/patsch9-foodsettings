@@ -8,7 +8,7 @@ root = Path(__file__).resolve().parents[1]
 version = re.search(r'^ \* Version: (.+)$', (root / 'patsch9-productsettings.php').read_text(), re.M)[1]
 out = root / 'dist' / f'patsch9-productsettings-{version}.zip'
 out.parent.mkdir(exist_ok=True)
-paths = [root / 'patsch9-productsettings.php', root / 'readme.txt', root / 'LICENSE', root / 'README.md']
+paths = [root / 'patsch9-productsettings.php', root / 'readme.txt', root / 'LICENSE', root / 'README.md', root / 'VALIDATION.md']
 for name in ('assets', 'includes', 'data'):
     paths.extend(p for p in (root / name).rglob('*') if p.is_file())
 with ZipFile(out, 'w', compression=ZIP_DEFLATED, compresslevel=9) as z:
