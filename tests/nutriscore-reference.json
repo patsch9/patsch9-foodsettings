@@ -1,0 +1,312 @@
+{
+  "source": "https://www.santepubliquefrance.fr/sites/default/files/rdd/document/Nutri-Score_Updated-algorithm_20240404.xlsx",
+  "note": "Numeric input/output examples from cached updated-algorithm columns; no formulas or logos redistributed.",
+  "cases": [
+    {
+      "category": "general",
+      "nutrients": {
+        "energy_kj": 321,
+        "sugars": 17.1,
+        "saturates": 0,
+        "salt": 0.025,
+        "fibre": 1.9,
+        "protein": 0.2
+      },
+      "fruit": 90,
+      "sweeteners": null,
+      "score": 0,
+      "grade": "a"
+    },
+    {
+      "category": "general",
+      "nutrients": {
+        "energy_kj": 0,
+        "sugars": 0,
+        "saturates": 0,
+        "salt": 84.5,
+        "fibre": 0,
+        "protein": 0
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 20,
+      "grade": "e"
+    },
+    {
+      "category": "general",
+      "nutrients": {
+        "energy_kj": 1700,
+        "sugars": 100,
+        "saturates": 0,
+        "salt": 0,
+        "fibre": 0,
+        "protein": 0
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 20,
+      "grade": "e"
+    },
+    {
+      "category": "red_meat",
+      "nutrients": {
+        "energy_kj": 489,
+        "sugars": 0,
+        "saturates": 0.9,
+        "salt": 0.125,
+        "fibre": 0,
+        "protein": 23.7
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": -1,
+      "grade": "a"
+    },
+    {
+      "category": "red_meat",
+      "nutrients": {
+        "energy_kj": 653,
+        "sugars": 0,
+        "saturates": 2.8,
+        "salt": 0.1275,
+        "fibre": 0,
+        "protein": 23.2
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 1,
+      "grade": "b"
+    },
+    {
+      "category": "red_meat",
+      "nutrients": {
+        "energy_kj": 908,
+        "sugars": 0,
+        "saturates": 7.1,
+        "salt": 0.17250000000000001,
+        "fibre": 0,
+        "protein": 19.3
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 7,
+      "grade": "c"
+    },
+    {
+      "category": "red_meat",
+      "nutrients": {
+        "energy_kj": 1025,
+        "sugars": 0.5,
+        "saturates": 6,
+        "salt": 0.155,
+        "fibre": 0,
+        "protein": 22.4
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 6,
+      "grade": "c"
+    },
+    {
+      "category": "cheese",
+      "nutrients": {
+        "energy_kj": 1523,
+        "sugars": 0.5,
+        "saturates": 19.8,
+        "salt": 1.8,
+        "fibre": 0.1,
+        "protein": 24.1
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 15,
+      "grade": "d"
+    },
+    {
+      "category": "cheese",
+      "nutrients": {
+        "energy_kj": 1568,
+        "sugars": 0,
+        "saturates": 20.2,
+        "salt": 1.8,
+        "fibre": 0,
+        "protein": 26.1
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 15,
+      "grade": "d"
+    },
+    {
+      "category": "cheese",
+      "nutrients": {
+        "energy_kj": 1344,
+        "sugars": 2.6,
+        "saturates": 18.4,
+        "salt": 1.6,
+        "fibre": 0.3,
+        "protein": 15.4
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 15,
+      "grade": "d"
+    },
+    {
+      "category": "cheese",
+      "nutrients": {
+        "energy_kj": 1242,
+        "sugars": 1,
+        "saturates": 15.6,
+        "salt": 2.3,
+        "fibre": 0,
+        "protein": 19.4
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 17,
+      "grade": "d"
+    },
+    {
+      "category": "fats",
+      "nutrients": {
+        "energy_kj": 3036,
+        "fat": 81.3,
+        "saturates": 54.7,
+        "sugars": 0.9,
+        "salt": 0.6,
+        "fibre": 0,
+        "protein": 0.7
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 22,
+      "grade": "e"
+    },
+    {
+      "category": "fats",
+      "nutrients": {
+        "energy_kj": 2144,
+        "fat": 56.9,
+        "saturates": 28.5,
+        "sugars": 0.8,
+        "salt": 0.7,
+        "fibre": 0.3,
+        "protein": 0.5
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 18,
+      "grade": "d"
+    },
+    {
+      "category": "fats",
+      "nutrients": {
+        "energy_kj": 3169,
+        "fat": 85.5,
+        "saturates": 20.9,
+        "sugars": 0.2,
+        "salt": 0.6,
+        "fibre": 0,
+        "protein": 0.2
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 11,
+      "grade": "d"
+    },
+    {
+      "category": "fats",
+      "nutrients": {
+        "energy_kj": 2464,
+        "fat": 45.6,
+        "saturates": 6.6,
+        "sugars": 7.8,
+        "salt": 1.1,
+        "fibre": 6,
+        "protein": 18.7
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 7,
+      "grade": "c"
+    },
+    {
+      "category": "fats",
+      "nutrients": {
+        "energy_kj": 2513,
+        "fat": 49.7,
+        "saturates": 6.4,
+        "sugars": 11.2,
+        "salt": 0,
+        "fibre": 7.3,
+        "protein": 17.2
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": -6,
+      "grade": "a"
+    },
+    {
+      "category": "fats",
+      "nutrients": {
+        "energy_kj": 2601,
+        "fat": 52.7,
+        "saturates": 9.8,
+        "sugars": 6.9,
+        "salt": 0.6,
+        "fibre": 7.9,
+        "protein": 21.9
+      },
+      "fruit": 0,
+      "sweeteners": null,
+      "score": 4,
+      "grade": "c"
+    },
+    {
+      "category": "beverage",
+      "nutrients": {
+        "energy_kj": 201,
+        "sugars": 9,
+        "saturates": 0,
+        "salt": 0,
+        "fibre": 0,
+        "protein": 0.5
+      },
+      "fruit": 100,
+      "sweeteners": false,
+      "score": 4,
+      "grade": "c"
+    },
+    {
+      "category": "beverage",
+      "nutrients": {
+        "energy_kj": 29,
+        "sugars": 1.2,
+        "saturates": 0,
+        "salt": 0.04,
+        "fibre": 0,
+        "protein": 0.1
+      },
+      "fruit": 0,
+      "sweeteners": true,
+      "score": 5,
+      "grade": "c"
+    },
+    {
+      "category": "beverage",
+      "nutrients": {
+        "energy_kj": 176,
+        "sugars": 10.6,
+        "saturates": 0,
+        "salt": 0,
+        "fibre": 0,
+        "protein": 0
+      },
+      "fruit": 0,
+      "sweeteners": false,
+      "score": 12,
+      "grade": "e"
+    }
+  ]
+}
