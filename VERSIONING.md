@@ -28,12 +28,11 @@ Für den eigentlichen Release-Build wird anschließend eine temporäre Arbeitsko
 
 1. `Version` im Plugin-Header.
 2. `P9PS_VERSION`.
-3. den Dateinamen des Release-ZIPs und seiner SHA-256-Datei.
-4. Titel und Versionsnummer des GitHub Releases.
+3. `Stable tag` in `readme.txt`.
+4. den Dateinamen des Release-ZIPs und seiner SHA-256-Datei.
+5. Titel und Versionsnummer des GitHub Releases.
 
-Bei einem Stable-Release wird zusätzlich `Stable tag` in `readme.txt` auf den Release-Tag gesetzt.
-
-Bei Alpha- und Beta-Releases bleibt `Stable tag` auf dem letzten stabilen Release. Vorabversionen werden als GitHub Pre-release veröffentlicht und nicht als neuestes stabiles Release gesetzt.
+Auch bei Alpha- und Beta-Releases entspricht `Stable tag` innerhalb des GitHub-Prerelease-Pakets der Tag-Version. Dadurch bleibt das Paket für den strikten WordPress Plugin Check intern konsistent. Da Foodsettings nicht nach WordPress.org veröffentlicht wird, hat dieser Wert keinen Einfluss auf einen WordPress.org-Stable-Kanal.
 
 Die Änderung findet nur im flüchtigen GitHub-Runner statt; der Release-Workflow schreibt keine Versionsänderung zurück nach `main`.
 
