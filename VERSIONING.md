@@ -1,26 +1,73 @@
 # Versionen und Releases
 
-Das Plugin verwendet dasselbe Schema wie Accounting Bridge und Rental Engine:
+Für neue Releases gilt der Git-Tag als autoritative Release-Version. Der Quellstand auf `main` muss deshalb vor einem Release nicht mehr manuell auf die neue Versionsnummer umgeschrieben werden.
 
-- Plugin-Version: `YYYY.M.N`, z. B. `2026.11.1`. Monat ohne führende Null; fortlaufende Nummer innerhalb des Monats.
-- Git-Tag: `v2026.11.1`.
-- Vorabversion: `2026.11.2-beta.1` und Tag `v2026.11.2-beta.1`. Erlaubt sind `alpha`, `beta` und `rc`, jeweils mit positiver Nummer nach einem Punkt.
-- Bei stabilen Versionen müssen Plugin-Header, `P9PS_VERSION`, `Stable tag` und beide Änderungsprotokolle übereinstimmen. Bei Vorabversionen bleibt `Stable tag` auf dem letzten stabilen Stand.
+## Schema
 
-`0.1.0` bleibt als historische erste Implementierung dokumentiert. Der erste Release im gemeinsamen Schema wird als `2026.11.1` vorbereitet. Diese Änderung erstellt selbst weder Tag noch Release.
+Erlaubt sind ausschließlich:
 
-## Ablauf
+- Stable/Hauptrelease: `YYYY.MM.N`, z. B. `2026.11.1`
+- Alpha: `YYYY.MM.N-alphaN`, z. B. `2026.11.2-alpha1`
+- Beta: `YYYY.MM.N-betaN`, z. B. `2026.11.2-beta1`
 
-1. Version im Plugin-Header, in `P9PS_VERSION` und in `readme.txt` aktualisieren; Eintrag in `CHANGELOG.md` und im Readme-Changelog ergänzen. README und Validierungsstand aktuell halten.
-2. `python3 tools/release_metadata.py` und die relevanten Tests ausführen, Pull Request nach `main` öffnen und alle Checks bestehen lassen.
-3. Pull Request zusammenführen und einen passenden `v`-Tag am geprüften Commit in `main` erstellen. Tags außerhalb der Historie von `main` werden abgelehnt. Vollständiger Checkout prüft dies auch im privaten Repository ohne nachträglichen authentifizierten Fetch.
-4. Der Release-Workflow prüft den Tag und ruft denselben Qualitätsworkflow erneut für den konkreten Release-Commit auf. Dies ist eine bewusste Absicherung des tatsächlich veröffentlichten Standes, unabhängig von früheren PR-Prüfungen.
-5. Erst nach erfolgreicher PHP-Matrix, Paketprüfung, WordPress-/WooCommerce-Integration und strengem Plugin Check erhält der Veröffentlichungsjob Schreibrechte. Er lädt das unveränderte geprüfte Artefakt, prüft die SHA-256-Summe und erstellt den GitHub-Release.
+Dabei gilt:
 
-Vorabversionen erhalten das GitHub-Kennzeichen „Pre-release“ und ersetzen nicht den neuesten stabilen Release. Bestehende Releases werden nicht überschrieben; für Korrekturen eine neue Version verwenden. Bei Infrastrukturfehlern den fehlgeschlagenen Lauf erneut starten.
+- `MM` ist immer zweistellig (`01` bis `12`).
+- `N` beginnt bei `1`.
+- Alpha-/Beta-Zähler beginnen ebenfalls bei `1`.
+- Neue Tags haben kein führendes `v`.
+- `rc`, `-alpha.1`, `-beta.1` und andere Suffixe sind nicht zulässig.
 
-## Paket
+Historische Tags und Releases bleiben unverändert.
 
-`python3 tools/build_zip.py` erzeugt ZIP und Prüfsumme unter `dist/`. Der Ordner im ZIP heißt immer `patsch9-productsettings`, damit WordPress bestehende Installationen erkennt. Enthalten sind ausschließlich Plugin-Datei, `readme.txt`, GPL-Lizenz, Laufzeit-Code, CSS/JavaScript und der lokale BLS-Datenauszug. Tests, Workflows, Werkzeuge, Git-Daten, lokale Konfiguration und Entwicklungsdokumentation werden nicht ausgeliefert. Dateizeiten und Dateirechte im ZIP sind fest definiert; gleiche Quellen erzeugen mit derselben Python-/zlib-Version dieselben Paketbytes.
+## Automatische Versionsübernahme
 
-**Veröffentlichungsziel ist ausschließlich GitHub.** Es sind keine WordPress.org-/SVN-Schritte, SVN-Zugangsdaten oder externen Update-Downloads eingerichtet. `Update URI` verhindert, dass WordPress.org versehentlich ein fremdes Plugin desselben Slugs als Update anbietet; die Angabe implementiert keinen Updater.
+Der Release-Workflow validiert zuerst den Tag und stellt weiterhin sicher, dass der Tag-Commit in `main` enthalten ist und zu einem gemergten Pull Request nach `main` gehört.
+
+Für den eigentlichen Release-Build wird anschließend eine temporäre Arbeitskopie verwendet. Dort setzt `tools/apply_release_version.py` die Tag-Version automatisch in:
+
+1. `Version` im Plugin-Header.
+2. `P9PS_VERSION`.
+3. den Dateinamen des Release-ZIPs und seiner SHA-256-Datei.
+4. Titel und Versionsnummer des GitHub Releases.
+
+Bei einem Stable-Release wird zusätzlich `Stable tag` in `readme.txt` auf den Release-Tag gesetzt.
+
+Bei Alpha- und Beta-Releases bleibt `Stable tag` auf dem letzten stabilen Release. Vorabversionen werden als GitHub Pre-release veröffentlicht und nicht als neuestes stabiles Release gesetzt.
+
+Die Änderung findet nur im flüchtigen GitHub-Runner statt; der Release-Workflow schreibt keine Versionsänderung zurück nach `main`.
+
+## Prüfungen
+
+Normale Pull Requests behalten die vollständigen PHP-, Paket-, JavaScript-, WordPress-/WooCommerce-, Security- und Plugin-Check-Prüfungen.
+
+Beim Tag-Lauf wird die bereits geprüfte Release-Quelle nicht vollständig erneut getestet. Stattdessen wird:
+
+1. das Tag-Schema validiert,
+2. Main-/PR-Provenance geprüft,
+3. die Tag-Version in die temporäre Release-Arbeitskopie injiziert,
+4. die resultierenden Versionsmetadaten validiert,
+5. das installierbare Paket gebaut,
+6. eine SHA-256-Prüfsumme erzeugt und
+7. genau dieses Artefakt als GitHub Release veröffentlicht.
+
+Die Release-Regressionstests decken Stable-, Alpha- und Beta-Tags sowie abgelehnte Legacy-/Fehlformate ab.
+
+## Changelog
+
+Changelog-Inhalte bleiben redaktionelle Projektdokumentation. Sie sind im normalen Entwicklungsstand weiterhin auf Konsistenz geprüft, werden beim Tag-Build aber nicht als Quelle der Release-Version verwendet. Die veröffentlichte Versionsnummer stammt ausschließlich aus dem Release-Tag.
+
+## Veröffentlichungsziel
+
+Foodsettings wird aktuell ausschließlich über GitHub veröffentlicht. Es gibt keinen WordPress.org-/SVN-Deploy für dieses Plugin. Alpha- und Beta-Releases bleiben daher ebenfalls reine GitHub-Prereleases.
+
+Der Paketordner heißt weiterhin immer `patsch9-productsettings`, damit WordPress eine vorhandene Installation als dasselbe Plugin erkennt.
+
+## Sicherheit
+
+- Release-Tags müssen auf einem Commit in `main` liegen.
+- Der Tag-Commit muss zu einem gemergten Pull Request nach `main` gehören.
+- Das Release-Schema wird strikt validiert.
+- Die Versionsänderung erfolgt nur im temporären Release-Workspace.
+- Das veröffentlichte ZIP wird mit SHA-256 abgesichert.
+- Actions bleiben auf Commit-SHAs gepinnt.
