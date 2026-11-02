@@ -71,13 +71,14 @@ final class ProductOptions {
 			return;
 		}
 		$data = ProductData::get( $product );
+		$required = ! empty( $data['enabled'] ) && ! empty( $data['withdrawal_ack'] );
 		$product->update_meta_data( ProductData::FOOD_ENABLED_META, ! empty( $data['enabled'] ) ? 'yes' : 'no' );
-		if ( ! empty( $data['enabled'] ) && ! empty( $data['withdrawal_ack'] ) ) {
+		if ( $required ) {
 			$product->update_meta_data( ProductData::WITHDRAWAL_META, 'yes' );
 		} else {
 			$product->delete_meta_data( ProductData::WITHDRAWAL_META );
 		}
-		Checkout::invalidate_product_cache();
+		Checkout::set_product_requirement( $product->get_id(), $required );
 	}
 
 	public static function assets( string $hook ): void {
