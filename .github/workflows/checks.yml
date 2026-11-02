@@ -41,6 +41,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+          tools: none
       - name: PHP syntax
         run: find includes tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l && php -l patsch9-productsettings.php
       - name: Domain, reference and dataset tests
