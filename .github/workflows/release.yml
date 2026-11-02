@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: release-${{ github.ref }}
@@ -20,8 +21,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Require matching tag and commit contained in main
+      - name: Require matching tag, main ancestry and merged PR
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           tag_commit="$(git rev-parse "${GITHUB_REF}^{commit}")"
@@ -29,6 +32,15 @@ jobs:
             echo '::error::Release tags must point to a commit contained in main.'
             exit 1
           }
+
+          merged_prs="$(gh api \
+            "repos/${GITHUB_REPOSITORY}/commits/${tag_commit}/pulls" \
+            --jq '[.[] | select(.base.ref == "main" and .merged_at != null)] | length')"
+          if [[ "$merged_prs" -lt 1 ]]; then
+            echo '::error::Release tags must point to a commit that belongs to a merged pull request targeting main.'
+            exit 1
+          fi
+
           python3 tools/release_metadata.py --tag "$GITHUB_REF_NAME"
 
   checks:
