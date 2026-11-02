@@ -163,4 +163,5 @@ jobs:
             dist/*.zip
             dist/*.zip.sha256
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
+

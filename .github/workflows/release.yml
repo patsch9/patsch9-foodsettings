@@ -86,3 +86,14 @@ jobs:
             args+=(--prerelease --latest=false)
           fi
           gh "${args[@]}"
+
+  cleanup:
+    name: Published build artifacts entfernen
+    needs: publish
+    uses: ./.github/workflows/cleanup-artifacts.yml # zizmor: ignore[self-repository] -- Same-commit reusable workflow.
+    with:
+      run_id: ${{ github.run_id }}
+      release_tag: ${{ github.ref_name }}
+    permissions:
+      contents: read
+      actions: write
