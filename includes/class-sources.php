@@ -76,7 +76,7 @@ final class Sources {
 		$url = 'https://world.openfoodfacts.org/api/v3.6/product/' . $barcode . '.json?lc=de&fields=' . rawurlencode( $fields );
 		$response = wp_safe_remote_get( $url, array(
 			'timeout' => 12, 'redirection' => 0, 'limit_response_size' => 512000,
-			'user-agent' => 'P9ProductSettings/' . P9PS_VERSION . ' (https://github.com/patsch9/patsch9-productsettings)',
+			'user-agent' => 'Patsch9FoodSettings/' . P9PS_VERSION . ' (https://github.com/patsch9/patsch9-foodsettings)',
 		) );
 		if ( is_wp_error( $response ) ) {
 			throw new \RuntimeException( 'Open Food Facts ist momentan nicht erreichbar.' );
@@ -156,4 +156,3 @@ final class Sources {
 		);
 	}
 }
-
