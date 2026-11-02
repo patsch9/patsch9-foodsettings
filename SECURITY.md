@@ -14,6 +14,12 @@ Eine SHA-256-Prüffreigabe bindet die angezeigten Daten an den geprüften Produk
 
 Öffentliche Ausgabe und Bestell-Snapshots enthalten keine privaten Rezeptmengen. Entwürfe und passwortgeschützte Produkte dürfen nicht über einen fremden Shortcode umgangen werden. Administrativer Vorschauzugriff unterliegt den WordPress-Berechtigungen.
 
+## Private Editor-Wiederherstellung
+
+Fehlerhafte Formulareingaben werden ausschließlich nach bestandenem Produkt-Nonce und objektspezifischer Autorisierung für höchstens eine Stunde separat zwischengespeichert. Benutzer- und Produkt-ID begrenzen den Zugriff; auch das Lesen und Verwerfen prüft erneut die Produktberechtigung. Verwerfen verwendet einen eigenen Nonce. Eine erfolgreiche Produktvalidierung entfernt die eigene Wiederherstellung.
+
+Dieser Zwischenspeicher ist auf 300.000 JSON-Bytes sowie 100 Rezeptzeilen und 110 Quellen begrenzt. Er übernimmt ausschließlich bekannte Formularfelder, sichere Zutatenhervorhebung und kontrollierte Listenstrukturen, niemals Freigabe-Hashes oder Nonces. Ungültige numerische Eingaben bleiben bewusst als Text zur Korrektur erhalten; HTML-Attribute werden serverseitig escaped, JavaScript nutzt `.val()` und `.text()`. Wiederhergestellte Werte werden weder veröffentlicht noch für den Nutri-Score berechnet. Beim erneuten Speichern greift vollständig dieselbe Domänenvalidierung und Freigaberegel wie bei normalen Eingaben. JSON-Decodierungsfehler und übergroße Nutzlasten werden nicht als erfolgreiche Wiederherstellung ausgegeben.
+
 ## Externe Daten
 
 Open Food Facts ist standardmäßig aus. Bewusste Abrufe verwenden einen festen HTTPS-Host, die sichere WordPress-HTTP-API, keine Redirects, einen Timeout und eine Antwortgrößengrenze. Ein atomarer, installationsweiter Options-Lock begrenzt Abfragen; Ergebnisse werden zwischengespeichert und Serverfehler führen zu einer Pause. Fremdes HTML, fehlende Nährwerte und Datenquellen werden nicht automatisch als geprüft behandelt. BLS-Suche und Nährwertberechnung laufen lokal.

@@ -78,20 +78,22 @@ final class Frontend {
 			}
 			$html .= '</tbody></table>';
 		}
-		$html .= '<dl class="p9ps-details">';
+		$details = '';
 		foreach ( array( 'net_quantity' => 'Nettofüllmenge', 'drained_weight' => 'Abtropfgewicht', 'operator' => 'Lebensmittelunternehmer', 'origin' => 'Herkunft', 'storage' => 'Aufbewahrung', 'instructions' => 'Zubereitung / Verwendung', 'shelf_life' => 'Haltbarkeitshinweis' ) as $key => $label ) {
 			if ( $d[ $key ] ) {
-				$html .= '<dt><strong>' . esc_html( $label ) . '</strong></dt><dd>' . nl2br( esc_html( $d[ $key ] ) ) . '</dd>';
+				$details .= '<dt><strong>' . esc_html( $label ) . '</strong></dt><dd>' . nl2br( esc_html( $d[ $key ] ) ) . '</dd>';
 			}
 		}
 		if ( null !== $d['alcohol'] ) {
-			$html .= '<dt><strong>Alkoholgehalt</strong></dt><dd>' . esc_html( number_format_i18n( $d['alcohol'], 1 ) . ' % vol' ) . '</dd>';
+			$details .= '<dt><strong>Alkoholgehalt</strong></dt><dd>' . esc_html( number_format_i18n( $d['alcohol'], 1 ) . ' % vol' ) . '</dd>';
 		}
-		$html .= '</dl>';
+		if ( '' !== $details ) {
+			$html .= '<dl class="p9ps-details">' . $details . '</dl>';
+		}
 		$score = ProductData::score( $d );
 		if ( $d['show_score'] && ! empty( $score['grade'] ) && 'yes' === get_option( 'p9ps_nutri_rights', 'no' ) ) {
 			$id = absint( get_option( 'p9ps_logo_' . $score['grade'], 0 ) );
-			if ( in_array( get_post_mime_type( $id ), array( 'image/png', 'image/jpeg', 'image/webp' ), true ) ) {
+			if ( 'attachment' === get_post_type( $id ) && in_array( get_post_mime_type( $id ), array( 'image/png', 'image/jpeg', 'image/webp' ), true ) ) {
 				$html .= wp_get_attachment_image( $id, 'medium', false, array( 'alt' => 'Nutri-Score ' . strtoupper( $score['grade'] ), 'class' => 'p9ps-nutriscore', 'style' => 'max-width:240px;height:auto' ) );
 			}
 		}

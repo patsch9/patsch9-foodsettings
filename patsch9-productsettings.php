@@ -34,7 +34,7 @@ add_action( 'plugins_loaded', static function () {
 		} );
 		return;
 	}
-	foreach ( array( 'nutrition', 'nutriscore', 'recipe', 'sources', 'product-data', 'admin', 'frontend' ) as $module ) {
+	foreach ( array( 'nutrition', 'nutriscore', 'recipe', 'sources', 'product-data', 'editor-draft', 'admin', 'frontend' ) as $module ) {
 		require_once P9PS_PATH . 'includes/class-' . $module . '.php';
 	}
 	\P9PS\Admin::init();

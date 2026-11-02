@@ -13,6 +13,7 @@ Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährw
 - Rezepteditor mit editierbaren Zutaten-Snapshots und Mengen in Gramm. Berechnung anhand des tatsächlichen fertigen, essbaren Gesamtgewichts. Zutatenvorschlag in absteigender Einsatzmenge.
 - Nutri-Score nach dem aktualisierten Algorithmus 2023: allgemeine Lebensmittel, Käse, rotes Fleisch, Fette/Öle/Nüsse/Samen, Getränke sowie reines Wasser. Fehlende Ballaststoffwerte, Prozentanteile oder Süßstoffangaben verhindern eine vermeintlich sichere Einstufung.
 - Versionsbezogene Prüffreigabe: Änderungen entziehen die bestehende Freigabe; ungeprüfte Angaben erscheinen nicht im Shop. Unverändertes Speichern erhält eine Freigabe.
+- Nach einem Validierungsfehler bleiben die zuletzt eingereichten Formulareingaben bis zu einer Stunde im Editor wiederherstellbar, getrennt nach Benutzer und Produkt. Sie ersetzen keine gespeicherten Shopangaben und erhalten keine Freigabe. Im Lebensmittel-Reiter korrigieren oder ausdrücklich verwerfen; der Cache kann früher ablaufen, etwa wenn er administrativ geleert wird. Ungültiges JSON, übergroße Daten oder ein nicht verfügbarer Cache sind davon ausgenommen und werden als nicht wiederherstellbar gemeldet.
 - Ausgabe im Produkt-Tab, alternativ Shortcode `[p9ps_food]` / `[p9ps_food id="123"]` für eigene Vorlagen und Shortcode-Blöcke.
 - Privater Stand der freigegebenen Deklaration in Bestellpositionen für klassischen und Block-Checkout; **keine privaten Rezeptmengen** im Bestell-Snapshot. HPOS-Unterstützung.
 
@@ -82,7 +83,7 @@ Nur explizite Barcodeabfragen nach Aktivierung: Übertragung von Barcode, Server
 
 ### Speicherorte
 
-Produktmeta `_p9ps_food` enthält die private Rezeptur und die Deklaration. Öffentlich wird ausschließlich die freigegebene Deklaration ohne Einsatzmengen ausgegeben. `_p9ps_food_snapshot` archiviert diesen Stand in Bestellpositionen, ebenfalls ohne private Rezeptmengen. Admin-/Importzugriff erfordert Produktschreibrechte und Nonce. Einstellungen erfordern `manage_woocommerce`.
+Produktmeta `_p9ps_food` enthält die private Rezeptur und die Deklaration. Öffentlich wird ausschließlich die freigegebene Deklaration ohne Einsatzmengen ausgegeben. `_p9ps_food_snapshot` archiviert diesen Stand in Bestellpositionen, ebenfalls ohne private Rezeptmengen. Admin-/Importzugriff erfordert Produktschreibrechte und Nonce. Einstellungen erfordern `manage_woocommerce`. Private Editor-Wiederherstellungen liegen getrennt in Transients `p9ps_draft_BENUTZERID_PRODUKTID` mit maximal einer Stunde Gültigkeit. Zugriff und Verwerfen setzen die Bearbeitungsberechtigung am Produkt voraus; erfolgreiche Speicherung löscht die eigene Wiederherstellung. Sie ist keine dauerhafte Versionshistorie und ersetzt keine Shop-Sicherung.
 
 Deaktivierung/Entfernung löscht Produkt- und Bestelldaten nicht automatisch. Das schützt bestehende Deklarationen und Bestellhistorie; Bereinigung vor einer endgültigen Entfernung bei Bedarf gezielt durchführen.
 

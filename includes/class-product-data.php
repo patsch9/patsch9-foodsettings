@@ -59,9 +59,6 @@ final class ProductData {
 		$d['fruit'] = Nutrition::number( $in['fruit'] ?? null, 100 );
 		$d['category'] = in_array( $in['category'] ?? '', Nutriscore::CATEGORIES, true ) ? $in['category'] : 'excluded';
 		$d['sweeteners'] = in_array( $in['sweeteners'] ?? '', array( 'yes', 'no' ), true ) ? $in['sweeteners'] : '';
-		if ( $d['alcohol'] > 1.2 ) {
-			$d['category'] = 'excluded';
-		}
 		if ( count( (array) ( $in['sources'] ?? array() ) ) > 110 || count( (array) ( $in['recipe'] ?? array() ) ) > 100 ) {
 			throw new \InvalidArgumentException( 'Zu viele Zutaten oder Quellen.' );
 		}
@@ -112,6 +109,9 @@ final class ProductData {
 		return $d['enabled'] && ! empty( $d['review_hash'] ) && hash_equals( $d['review_hash'], self::fingerprint( $d ) );
 	}
 	public static function score( array $d ): array {
+		if ( isset( $d['alcohol'] ) && $d['alcohol'] > 1.2 ) {
+			return array( 'grade' => null, 'reason' => 'Keine Nutri-Score-Berechnung bei mehr als 1,2 % vol Alkohol.' );
+		}
 		$n = $d['nutrients'];
 		foreach ( $n as $key => $value ) {
 			if ( null !== $value ) {

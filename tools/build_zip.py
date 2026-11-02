@@ -8,7 +8,7 @@ from release_metadata import SLUG, validate
 REQUIRED = {
     f'{SLUG}.php', 'readme.txt', 'LICENSE', 'assets/admin.css', 'assets/admin.js',
     'data/bls/manifest.json', 'data/bls/index.json',
-    *(f'includes/class-{name}.php' for name in ('admin', 'frontend', 'nutrition', 'nutriscore', 'product-data', 'recipe', 'sources')),
+    *(f'includes/class-{name}.php' for name in ('admin', 'frontend', 'nutrition', 'nutriscore', 'product-data', 'recipe', 'sources', 'editor-draft')),
 }
 RUNTIME_DIRS = {'assets': {'.css', '.js'}, 'includes': {'.php'}, 'data': {'.json'}}
 
