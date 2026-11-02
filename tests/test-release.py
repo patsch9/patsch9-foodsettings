@@ -60,6 +60,8 @@ class ReleaseTests(unittest.TestCase):
                 self.assertIn(f"P9PS_VERSION', '{version}'", plugin)
                 self.assertIn(f'Stable tag: {version}', readme)
                 self.assertTrue(validate(root, version)['prerelease'])
+                out = build(root, version)
+                self.assertEqual(out.name, f'{SLUG}-{version}.zip')
 
     def test_rejects_legacy_and_malicious_tags(self):
         for tag in (
@@ -96,6 +98,7 @@ class ReleaseTests(unittest.TestCase):
     def test_tag_build_does_not_use_changelog_heading_as_version_source(self):
         apply(self.root, '2026.12.1')
         self.assertEqual(validate(self.root, '2026.12.1')['version'], '2026.12.1')
+        self.assertEqual(build(self.root, '2026.12.1').name, f'{SLUG}-2026.12.1.zip')
 
     def test_rejects_invalid_source_version_scheme(self):
         for value in ('0.1.0', '2026.1.1', '2026.011.1', '2026.13.1', '2026.11.01', '2026.11.1-beta.1', '2026.11.1-rc1'):
