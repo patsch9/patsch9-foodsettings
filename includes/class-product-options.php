@@ -12,14 +12,14 @@ final class ProductOptions {
 	}
 
 	public static function product_type_options( array $options ): array {
-		$value = 'no';
+		$default = 'no';
 		global $post;
 		if ( $post instanceof \WP_Post && 'product' === $post->post_type ) {
 			$product = wc_get_product( $post->ID );
 			if ( $product ) {
 				$indexed = $product->get_meta( ProductData::FOOD_ENABLED_META, true );
 				$data = ProductData::get( $product );
-				$value = 'yes' === $indexed || ( '' === $indexed && ! empty( $data['enabled'] ) ) ? 'yes' : 'no';
+				$default = 'yes' === $indexed || ( '' === $indexed && ! empty( $data['enabled'] ) ) ? 'yes' : 'no';
 			}
 		}
 
@@ -28,8 +28,7 @@ final class ProductOptions {
 			'wrapper_class' => '',
 			'label'         => __( 'Lebensmittel', 'patsch9-foodsettings' ),
 			'description'   => __( 'Aktiviert die Lebensmitteldaten von Patsch9 Food Settings für dieses Produkt.', 'patsch9-foodsettings' ),
-			'default'       => 'no',
-			'value'         => $value,
+			'default'       => $default,
 		);
 		return $options;
 	}
@@ -82,6 +81,7 @@ final class ProductOptions {
 	}
 
 	public static function assets( string $hook ): void {
+		unset( $hook );
 		$screen = get_current_screen();
 		if ( ! $screen || 'product' !== $screen->id ) {
 			return;
