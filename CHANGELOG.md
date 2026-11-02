@@ -2,7 +2,7 @@
 
 ## Unveröffentlicht
 
-- „Lebensmittel“ als WooCommerce-Produktoption in die Kopfzeile der Produktdaten verschoben. Der Lebensmitteldaten-Reiter ist nur sichtbar, wenn diese Option aktiviert ist; bestehende als Lebensmittel markierte Produkte werden beim ersten Speichern sauber in das neue Index-Metafeld übernommen.
+- „Lebensmittel (P9)“ als WooCommerce-Produktoption in die Kopfzeile der Produktdaten verschoben. Der Lebensmitteldaten-Reiter ist nur sichtbar, wenn diese Option aktiviert ist; bestehende als Lebensmittel markierte Produkte werden beim ersten Speichern sauber in das neue Index-Metafeld übernommen.
 - Pro Lebensmittel kann optional eine verpflichtende Checkout-Bestätigung für tatsächlich individuell angefertigte Waren aktiviert werden. Der Hinweis verweist auf § 312g Abs. 2 Nr. 1 BGB und macht im Editor ausdrücklich klar, dass der Lebensmittelstatus allein kein Widerrufsrecht ausschließt.
 - Klassischer Checkout und Checkout-Block werden unterstützt. Im Checkout-Block wird die produktabhängige Bedingung über die WooCommerce Additional Checkout Fields API ab WooCommerce 9.9 ausgewertet; im klassischen Checkout erfolgt die Prüfung serverseitig anhand des Warenkorbs.
 - Die erteilte Bestätigung wird mit Zeitpunkt, Wortlaut, Checkout-Typ und betroffenen Produkt-IDs an der Bestellung dokumentiert. Checkout-Rechtseinstellungen sind bewusst nicht Teil des Freigabe-Hashes der Lebensmitteldeklaration.
