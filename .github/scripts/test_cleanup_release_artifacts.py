@@ -54,6 +54,8 @@ class CleanupTests(unittest.TestCase):
             return self.run
         if "/releases/tags/" in endpoint or endpoint.endswith("/releases/7"):
             return self.release
+        if "/releases?" in endpoint:
+            return [self.release]
         if "/releases/7/assets?" in endpoint:
             self.asset_calls += 1
             assets = deepcopy(self.assets)
@@ -138,6 +140,23 @@ class CleanupTests(unittest.TestCase):
         self.release["draft"] = True
         self.scan()
         self.assertEqual(self.deletions, [])
+
+    def test_old_main_build_uses_versioned_artifact_candidate(self):
+        self.run["head_branch"] = "main"
+        self.artifact["name"] = "p9-rezeptwerk-2026.11.1"
+        self.scan()
+        self.assertEqual(len(self.deletions), 1)
+
+    def test_unpublished_build_is_kept_without_an_api_error(self):
+        self.run["head_branch"] = "main"
+        self.scan()
+        self.assertEqual(self.deletions, [])
+
+    def test_ambiguous_version_aliases_are_kept(self):
+        self.run["head_branch"] = "main"
+        self.artifact["name"] = "p9-rezeptwerk-2026.11.1"
+        self.assertIsNone(cleanup.select_release_tag(self.run, [self.artifact],
+                                                    {"2026.11.1": {}, "v2026.11.1": {}}))
 
     def test_release_change_during_verification_keeps_artifact(self):
         self.changed_assets = True

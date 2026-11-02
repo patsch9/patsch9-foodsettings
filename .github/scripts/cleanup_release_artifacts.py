@@ -2,7 +2,7 @@
 
 No extraction, release deletion, cache deletion, or workflow-run deletion occurs.
 The default mode scans successful tag releases; current-run mode is called only
-after the publishing job succeeds. Failed/manual builds remain until retention.
+after the publishing job succeeds. Unpublished builds remain until retention.
 """
 
 import argparse
@@ -88,13 +88,24 @@ def eligible_run(run, artifact, current_run_id=None):
         return False
     if current_run_id is not None:
         return str(run["id"]) == str(current_run_id) and run.get("status") == "in_progress"
-    return (run.get("status") == "completed" and run.get("conclusion") == "success"
-            and run.get("event") == "push")
+    return run.get("status") == "completed" and run.get("conclusion") == "success"
 
 
 def asset_signatures(assets):
     return sorted((asset["id"], asset["name"], asset["size"], asset.get("digest"),
                    asset.get("state")) for asset in assets)
+
+
+def select_release_tag(run, artifacts, published):
+    if run["head_branch"] in published:
+        return run["head_branch"]
+    # Older workflows also built on main and workflow_dispatch. Their versioned
+    # archive identifies the candidate release; hashes still prove every copy.
+    versions = {artifact["name"].removeprefix("p9-rezeptwerk-") for artifact in artifacts
+                if artifact["workflow_run"]["id"] == run["id"]
+                and artifact["name"].startswith("p9-rezeptwerk-")}
+    candidates = [tag for tag in published if tag.removeprefix("v") in versions]
+    return candidates[0] if len(candidates) == 1 else None
 
 
 def cleanup(repo, *, run_id=None, release_tag=None):
@@ -109,6 +120,8 @@ def cleanup(repo, *, run_id=None, release_tag=None):
                 else f"{base}/actions/artifacts")
     # Snapshot all pages before deleting, so offsets cannot skip artifacts.
     artifacts = pages(endpoint, "artifacts")
+    published = ({release["tag_name"]: release for release in pages(f"{base}/releases")
+                  if not release.get("draft")} if not run_id else {})
     runs, releases = {}, {}
     deleted, freed, errors = 0, 0, 0
     for artifact in artifacts:
@@ -122,9 +135,12 @@ def cleanup(repo, *, run_id=None, release_tag=None):
             run = runs[artifact_run_id]
             if not eligible_run(run, artifact, run_id):
                 continue
-            tag = release_tag or run["head_branch"]
+            tag = release_tag or select_release_tag(run, artifacts, published)
+            if not tag:
+                print(f"KEEP {artifact['id']} {name}: no unambiguous published release", flush=True)
+                continue
             if tag not in releases:
-                release = gh_api(f"{base}/releases/tags/{quote(tag, safe='')}")
+                release = published[tag] if not run_id else gh_api(f"{base}/releases/tags/{quote(tag, safe='')}")
                 releases[tag] = (release, pages(f"{base}/releases/{int(release['id'])}/assets"))
             release, assets = releases[tag]
             if release.get("draft") or release["tag_name"] != tag:
