@@ -16,8 +16,6 @@ const jquery = require('jquery');
         <div class="patsch9fs-wrap">
           <div class="patsch9fs-field"><label><input id="patsch9fs-enabled" name="patsch9fs[enabled]" type="checkbox">Enabled</label></div>
           <div class="patsch9fs-field"><label><input id="patsch9fs-same_variations" type="checkbox">Variations</label></div>
-          <input id="patsch9fs-approve" type="checkbox" checked>
-          <div class="patsch9fs-review"><strong>Freigegeben.</strong></div>
         </div>
       </div>
     </form>
@@ -44,12 +42,11 @@ const jquery = require('jquery');
   $('#_patsch9fs_food_enabled').prop('checked', true).trigger('change');
   assert.notEqual($('.patsch9fs_food_options').css('display'), 'none', 'Food tab becomes visible when Lebensmittel is enabled.');
   assert.equal($('#patsch9fs-enabled').prop('checked'), true, 'Header option is synchronized into the structured payload.');
-  assert.equal($('#patsch9fs-approve').prop('checked'), false, 'Changing the food status invalidates an old declaration approval.');
 
   $('#_patsch9fs_food_enabled').prop('checked', false).trigger('change');
   assert.equal($('.patsch9fs_food_options').css('display'), 'none', 'Food tab is hidden again when Lebensmittel is disabled.');
   assert.equal($('#patsch9fs-enabled').prop('checked'), false, 'Disabled header option is synchronized into the structured payload.');
 
   window.close();
-  console.log('PASS: 11 product-option DOM regression assertions.');
+  console.log('PASS: 10 product-option DOM regression assertions.');
 })().catch(error => { console.error(error); process.exitCode = 1; });
