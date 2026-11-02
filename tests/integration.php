@@ -66,9 +66,10 @@ $invalid_ajax = $ajax; $invalid_ajax['nonce'] = 'invalid';
 patsch9fs_assert( 'patsch9fs-ajax-stop:-1' === patsch9fs_ajax_request( $invalid_ajax )['stopped'], 'Invalid AJAX nonce is rejected before processing.' );
 $invalid_ajax = $ajax; $invalid_ajax['product_id'] = 0;
 patsch9fs_assert( false === patsch9fs_ajax_request( $invalid_ajax )['response']['success'], 'AJAX cannot operate without a real editable product.' );
+$ingredient_notes = "E102, E110, E129: Kann Aktivität und Aufmerksamkeit bei Kindern beeinträchtigen.\nKakao: 35 % mindestens in der verwendeten Schokolade.\nKakao: 54,5 % mindestens in der verwendeten Schokoladenkuvertüre.\nKakao: 31,7 % mindestens in der verwendeten Milchschokoladenkuvertüre.";
 $_POST = array(
     'patsch9fs_present' => '1', 'patsch9fs_nonce' => wp_create_nonce( 'patsch9fs_save_food' ), 'patsch9fs_approve' => '1',
-    'patsch9fs' => array( 'enabled' => '1', 'ingredients' => '<strong onclick="alert(1)">MILCH</strong>, Zucker<img src=x onerror="alert(1)">', 'operator' => 'Hersteller, Straße 1, Ort', 'nutrients' => array_fill_keys( Nutrition::KEYS, '0' ) ),
+    'patsch9fs' => array( 'enabled' => '1', 'ingredients' => '<strong onclick="alert(1)">MILCH</strong>, Zucker<img src=x onerror="alert(1)">', 'ingredient_notes' => $ingredient_notes . '<img src=x onerror="alert(1)">', 'operator' => 'Hersteller, Straße 1, Ort', 'nutrients' => array_fill_keys( Nutrition::KEYS, '0' ) ),
     'patsch9fs_recipe_json' => '[]', 'patsch9fs_sources_json' => '[]',
 );
 Admin::save( $p ); $p->save();
@@ -79,10 +80,22 @@ patsch9fs_assert( str_contains( $html, '<strong>MILCH</strong>' ), 'Safe allerge
 patsch9fs_assert( ! str_contains( $html, 'onclick' ) && ! str_contains( $html, '<img' ), 'External markup cannot execute.' );
 patsch9fs_assert( str_contains( $html, 'kJ / 0 kcal' ), 'Zero-valued nutrition table rendered.' );
 patsch9fs_assert( str_contains( do_shortcode( '[patsch9fs_food id="' . $p->get_id() . '"]' ), 'MILCH' ), 'Shortcode renders approved food.' );
+patsch9fs_assert( $ingredient_notes === $d['ingredient_notes'], 'Sanitized multiline ingredient notes survive a real product save.' );
+patsch9fs_assert( str_contains( $html, 'patsch9fs-ingredient-notes' ) && str_contains( $html, '31,7 %' ) && str_contains( $html, '54,5 %' ), 'All cocoa notes appear in the public declaration.' );
+patsch9fs_assert( str_contains( $html, "beeinträchtigen.<br />\nKakao:" ), 'Public notes retain line breaks.' );
+patsch9fs_assert( strpos( $html, '<h4>Zutaten</h4>' ) < strpos( $html, '<h4>Zutatenhinweise</h4>' ), 'Notes are placed below the ingredient list.' );
+$_POST['patsch9fs']['ingredient_notes'] = $ingredient_notes;
 
 unset( $_POST['patsch9fs_approve'] );
 Admin::save( $p ); $p->save();
 patsch9fs_assert( ProductData::approved( ProductData::get( $p ) ), 'Unchanged save retains approval.' );
+$_POST['patsch9fs']['ingredient_notes'] .= "\nWeiterer geprüfter Hinweis.";
+Admin::save( $p ); $p->save();
+patsch9fs_assert( ! ProductData::approved( ProductData::get( $p ) ) && '' === Frontend::render( $p ), 'Changing only ingredient notes revokes shop publication.' );
+$_POST['patsch9fs']['ingredient_notes'] = $ingredient_notes;
+$_POST['patsch9fs_approve'] = '1';
+Admin::save( $p ); $p->save();
+unset( $_POST['patsch9fs_approve'] );
 $_POST['patsch9fs']['ingredients'] .= ', Wasser';
 Admin::save( $p ); $p->save();
 patsch9fs_assert( ! ProductData::approved( ProductData::get( $p ) ), 'Changed declaration loses approval.' );
@@ -105,6 +118,7 @@ Admin::save( $p ); $p->save();
 patsch9fs_assert( ProductData::get( $p )['review_hash'] === $approved_hash, 'Invalid numeric save leaves existing data intact.' );
 $draft = EditorDraft::get( $p );
 patsch9fs_assert( '-1' === $draft['nutrients']['fat'], 'Invalid numeric editor input survives failed save in a private draft.' );
+patsch9fs_assert( $ingredient_notes === $draft['ingredient_notes'], 'Ingredient notes survive failed validation in private editor recovery.' );
 patsch9fs_assert( ! ProductData::approved( $draft ), 'Recovery data never has a publication approval.' );
 $second_editor = wp_insert_user( array( 'user_login' => 'patsch9fs-recovery-' . wp_generate_password( 8, false ), 'user_pass' => wp_generate_password(), 'role' => 'administrator' ) );
 patsch9fs_assert( ! is_wp_error( $second_editor ), 'Second authorized editor fixture exists.' );
@@ -212,6 +226,7 @@ $item->set_product( $p ); $item->set_quantity( 1 );
 do_action( 'woocommerce_checkout_create_order_line_item', $item, 'test', array(), null );
 $snapshot = $item->get_meta( '_patsch9fs_food_snapshot', true );
 patsch9fs_assert( ! empty( $snapshot ) && ! array_key_exists( 'recipe', $snapshot ), 'Classic checkout snapshot excludes private recipe.' );
+patsch9fs_assert( $ingredient_notes === $snapshot['ingredient_notes'], 'Classic checkout archives the ingredient notes.' );
 Frontend::snapshot( $item );
 patsch9fs_assert( count( $item->get_meta_data() ) === 1, 'Snapshot is idempotent.' );
 $order = wc_create_order();
@@ -220,6 +235,7 @@ do_action( 'woocommerce_store_api_checkout_update_order_meta', $order );
 $order_items = $order->get_items();
 $store_item = reset( $order_items );
 patsch9fs_assert( ! empty( $store_item->get_meta( '_patsch9fs_food_snapshot', true ) ), 'Store API checkout hook records declaration.' );
+patsch9fs_assert( $ingredient_notes === $store_item->get_meta( '_patsch9fs_food_snapshot', true )['ingredient_notes'], 'Store API checkout archives the ingredient notes.' );
 $order->delete( true );
 $p->update_meta_data( ProductData::META, ProductData::defaults() ); $p->save();
 patsch9fs_assert( $snapshot === $item->get_meta( '_patsch9fs_food_snapshot', true ), 'Existing order snapshot unchanged by catalog updates.' );

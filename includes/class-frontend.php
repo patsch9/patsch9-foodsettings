@@ -51,6 +51,9 @@ final class Frontend {
 		if ( $d['ingredients'] ) {
 			$html .= '<h4>Zutaten</h4><p>' . ProductData::html( $d['ingredients'] ) . '</p>';
 		}
+		if ( '' !== $d['ingredient_notes'] ) {
+			$html .= '<div class="patsch9fs-ingredient-notes"><h4>Zutatenhinweise</h4><p>' . nl2br( esc_html( $d['ingredient_notes'] ) ) . '</p></div>';
+		}
 		if ( $d['allergens'] ) {
 			$allergens = ProductData::allergens();
 			$html .= '<p><strong>Enthält: ' . esc_html( implode( ', ', array_map( static fn( $id ) => $allergens[ $id ], $d['allergens'] ) ) ) . '.</strong></p>';

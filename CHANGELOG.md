@@ -2,6 +2,7 @@
 
 ## 2026.11.1
 
+- Optionales mehrzeiliges Feld „Zutatenhinweise“ für ergänzende Warntexte und Kakaoangaben: Klartext mit Zeilenumbrüchen unter der Zutatenliste, private Editor-Wiederherstellung und Bestell-Snapshots. Geänderte Hinweise entziehen die Prüffreigabe; leere neue Felder erhalten bestehende Freigabe-Hashes.
 - Gemini-Review abgeglichen: Private Editor-Wiederherstellung nach Validierungsfehlern, Kategorieauswahl trotz Alkohol-Ausschluss erhalten, UTF-8-Zeichenlängen und bedingte Detailausgabe korrigiert.
 - Widersprüchliche BLS-Zutaten zeigen die betroffenen Nährwerte und öffnen ihre editierbaren Felder; keine automatische Kappung von Quellenwerten.
 - Logo-Auswahl auf echte Rasterbild-Anhänge begrenzt; zusätzliche Domänen-, Integrations- und JavaScript-DOM-Regressionen.

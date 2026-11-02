@@ -15,6 +15,8 @@ Lebensmittelangaben, lokale BLS-Nährwertsuche, Barcodeimport und Rezeptberechnu
 
 Erste testbare Version. Zutaten, Allergene, Nährwertdeklaration und weitere Lebensmittelangaben im klassischen WooCommerce-Produkteditor pflegen. Germanized Pro wird nicht benötigt.
 
+Das zusätzliche mehrzeilige Feld „Zutatenhinweise“ nimmt ergänzende Warntexte oder Kakaoangaben auf. Freigegebene Hinweise erscheinen unter der Zutatenliste; Zeilenumbrüche bleiben erhalten. Hinweise werden manuell gepflegt und mit der Deklaration in Bestellpositionen archiviert. Neue oder geänderte Hinweise erfordern eine erneute Freigabe. Ein leeres Feld verändert vorhandene Freigaben nicht.
+
 7.140 BLS-4.0-Einträge (Max Rubner-Institut, CC BY 4.0) sind lokal enthalten. Open Food Facts kann für bewusste Barcodeabfragen aktiviert werden. Nährwerte eigener Rezepturen lassen sich mit Zutatenmengen und fertigem Produktgewicht berechnen. Fehlende Werte werden nicht als null angenommen.
 
 Nutri-Score-Berechnung nach dem aktualisierten Algorithmus 2023. Für eine öffentliche Anzeige sind passende Nutzungsrechte und eigene offizielle Grafiken erforderlich. Importierte Angaben, Allergene und Rezeptvorschläge müssen vor Freigabe selbst überprüft werden.

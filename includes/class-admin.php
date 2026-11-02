@@ -76,6 +76,8 @@ final class Admin {
 		echo '<div id="patsch9fs-recipe-rows"></div><button type="button" class="button" id="patsch9fs-add-manual">Manuelle Zutat hinzufügen</button> <button type="button" class="button button-primary" id="patsch9fs-calculate">Rezept berechnen</button><div id="patsch9fs-recipe-preview"></div><p>Die Zutatenliste ist ein Vorschlag. Unterzutaten, konkrete Getreide-/Nussarten, QUID-Prozente, Zusatzstoffe und Hervorhebungen selbst kontrollieren. Zutatenmengen werden nicht öffentlich ausgegeben.</p></details>';
 		echo '<details open><summary>Zutaten, Allergene und Deklaration</summary>';
 		self::field( $d, 'ingredients', 'Zutatenliste (Allergene mit <strong>…</strong> hervorheben)', 'textarea' );
+		self::field( $d, 'ingredient_notes', 'Zutatenhinweise (z. B. Farbstoffwarnungen oder Kakaoangaben)', 'textarea' );
+		echo '<p>Zusätzliche Angaben im geprüften Wortlaut, ein Hinweis je Zeile. Beispiel: „E102, E110, E129: Kann Aktivität und Aufmerksamkeit bei Kindern beeinträchtigen.“ oder „Kakao: 35 % mindestens in der verwendeten Schokolade.“ Die Hinweise werden unter der Zutatenliste angezeigt und nicht automatisch berechnet.</p>';
 		echo '<fieldset class="patsch9fs-allergens"><legend>Enthaltene Allergene (zusätzliche Übersicht)</legend>';
 		foreach ( ProductData::allergens() as $id => $label ) {
 			echo '<label><input type="checkbox" name="patsch9fs[allergens][]" value="' . esc_attr( $id ) . '" ' . checked( in_array( $id, $d['allergens'], true ), true, false ) . '> ' . esc_html( $label ) . '</label>';
