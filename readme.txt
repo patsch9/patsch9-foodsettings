@@ -1,4 +1,4 @@
-=== P9 Food Settings – Lebensmittel ===
+=== Patsch9 Food Settings – Lebensmittel ===
 Contributors: patsch9
 Tags: woocommerce, food, nutrition, ingredients, allergens
 Requires at least: 6.7
@@ -31,9 +31,9 @@ Nutri-Score-Grafiken werden nicht von einem externen Dienst abgerufen. Offiziell
 
 == Installation ==
 
-1. Installierbares ZIP mit dem Ordner patsch9-productsettings hochladen und aktivieren.
+1. Installierbares ZIP mit dem Ordner patsch9-foodsettings hochladen und aktivieren.
 2. WooCommerce aktivieren; klassischen Produkteditor verwenden.
-3. Produktdaten > Lebensmittel (P9) ausfüllen, Angaben prüfen, Prüffreigabe setzen und speichern.
+3. Produktdaten > Lebensmittel (Patsch9) ausfüllen, Angaben prüfen, Prüffreigabe setzen und speichern.
 4. Bei Bedarf WooCommerce > Lebensmitteldaten konfigurieren.
 
 == Frequently Asked Questions ==
