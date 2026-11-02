@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: P9 Product Settings – Lebensmittel
+ * Plugin Name: P9 Food Settings – Lebensmittel
  * Description: Zutaten, Allergene, Nährwerte, Rezeptberechnung und öffentliche Lebensmitteldaten für WooCommerce.
  * Version: 2026.11.1
  * Author: Patrick Schmidt
  * Author URI: https://github.com/patsch9
- * Plugin URI: https://github.com/patsch9/patsch9-productsettings
- * Update URI: https://github.com/patsch9/patsch9-productsettings
+ * Plugin URI: https://github.com/patsch9/patsch9-foodsettings
+ * Update URI: https://github.com/patsch9/patsch9-foodsettings
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: patsch9-productsettings
@@ -30,7 +30,7 @@ add_action( 'before_woocommerce_init', static function () {
 add_action( 'plugins_loaded', static function () {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		add_action( 'admin_notices', static function () {
-			echo '<div class="notice notice-warning"><p>' . esc_html__( 'P9 Product Settings benötigt WooCommerce.', 'patsch9-productsettings' ) . '</p></div>';
+			echo '<div class="notice notice-warning"><p>' . esc_html__( 'P9 Food Settings benötigt WooCommerce.', 'patsch9-productsettings' ) . '</p></div>';
 		} );
 		return;
 	}
@@ -40,4 +40,3 @@ add_action( 'plugins_loaded', static function () {
 	\P9PS\Admin::init();
 	\P9PS\Frontend::init();
 } );
-
