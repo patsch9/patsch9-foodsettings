@@ -45,7 +45,7 @@ class ReleaseTests(unittest.TestCase):
         self.assertIn('Stable tag: 2026.12.3', readme)
         self.assertEqual(validate(self.root, '2026.12.3')['version'], '2026.12.3')
 
-    def test_prerelease_keeps_previous_stable(self):
+    def test_prerelease_package_uses_tag_for_all_version_metadata(self):
         for version in ('2026.11.2-alpha1', '2026.11.2-beta1'):
             with self.subTest(version=version):
                 root = Path(tempfile.mkdtemp(dir=self.root))
@@ -54,8 +54,11 @@ class ReleaseTests(unittest.TestCase):
                     target.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(self.root / name, target)
                 apply(root, version)
+                plugin = (root / f'{SLUG}.php').read_text()
                 readme = (root / 'readme.txt').read_text()
-                self.assertIn('Stable tag: 2026.11.1', readme)
+                self.assertIn(f'* Version: {version}', plugin)
+                self.assertIn(f"P9PS_VERSION', '{version}'", plugin)
+                self.assertIn(f'Stable tag: {version}', readme)
                 self.assertTrue(validate(root, version)['prerelease'])
 
     def test_rejects_legacy_and_malicious_tags(self):
