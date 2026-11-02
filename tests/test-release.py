@@ -1,6 +1,5 @@
 """Regression tests for release validation and installable package boundaries."""
 import hashlib
-import importlib.util
 import os
 from pathlib import Path
 import shutil
@@ -11,8 +10,9 @@ from zipfile import ZipFile
 
 SOURCE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SOURCE / 'tools'))
+from apply_release_version import apply
 from build_zip import build, REQUIRED, SLUG
-from release_metadata import validate
+from release_metadata import parse_release_version, validate
 
 
 class ReleaseTests(unittest.TestCase):
@@ -33,19 +33,43 @@ class ReleaseTests(unittest.TestCase):
         path = self.root / name
         path.write_text(path.read_text().replace(old, new), encoding='utf-8')
 
-    def test_matching_stable_tag(self):
-        self.assertEqual(validate(self.root, 'v2026.11.1'), {'version': '2026.11.1', 'prerelease': False})
+    def test_matching_stable_tag_without_prefix(self):
+        self.assertEqual(validate(self.root, '2026.11.1'), {'version': '2026.11.1', 'prerelease': False})
+
+    def test_apply_stable_release_version_from_tag(self):
+        apply(self.root, '2026.12.3')
+        plugin = (self.root / f'{SLUG}.php').read_text()
+        readme = (self.root / 'readme.txt').read_text()
+        self.assertIn('* Version: 2026.12.3', plugin)
+        self.assertIn("P9PS_VERSION', '2026.12.3'", plugin)
+        self.assertIn('Stable tag: 2026.12.3', readme)
+        self.assertEqual(validate(self.root, '2026.12.3')['version'], '2026.12.3')
 
     def test_prerelease_keeps_previous_stable(self):
-        for name in (f'{SLUG}.php', 'CHANGELOG.md', 'readme.txt'):
-            self.replace(name, '2026.11.1', '2026.11.2-beta.1')
-        self.replace('readme.txt', 'Stable tag: 2026.11.2-beta.1', 'Stable tag: 2026.11.1')
-        self.assertTrue(validate(self.root, 'v2026.11.2-beta.1')['prerelease'])
+        for version in ('2026.11.2-alpha1', '2026.11.2-beta1'):
+            with self.subTest(version=version):
+                root = Path(tempfile.mkdtemp(dir=self.root))
+                for name in REQUIRED | {'CHANGELOG.md'}:
+                    target = root / name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(self.root / name, target)
+                apply(root, version)
+                readme = (root / 'readme.txt').read_text()
+                self.assertIn('Stable tag: 2026.11.1', readme)
+                self.assertTrue(validate(root, version)['prerelease'])
 
-    def test_rejects_mismatched_or_malicious_tags(self):
-        for tag in ('2026.11.1', 'v2026.11.2', 'v2026.11.1\nnext=evil', 'v2026.11.1;id'):
+    def test_rejects_legacy_and_malicious_tags(self):
+        for tag in (
+            'v2026.11.1',
+            '2026.11.0',
+            '2026.11.2-alpha.1',
+            '2026.11.2-beta.1',
+            '2026.11.2-rc1',
+            '2026.11.1\nnext=evil',
+            '2026.11.1;id',
+        ):
             with self.subTest(tag=tag), self.assertRaises(ValueError):
-                validate(self.root, tag)
+                parse_release_version(tag)
 
     def test_rejects_constant_mismatch(self):
         self.replace(f'{SLUG}.php', "'2026.11.1'", "'2026.11.2'")
@@ -53,11 +77,11 @@ class ReleaseTests(unittest.TestCase):
             validate(self.root)
 
     def test_rejects_stable_mismatch(self):
-        self.replace('readme.txt', 'Stable tag: 2026.11.1', 'Stable tag: 2026.11.0')
+        self.replace('readme.txt', 'Stable tag: 2026.11.1', 'Stable tag: 2026.10.9')
         with self.assertRaises(ValueError):
             validate(self.root)
 
-    def test_rejects_missing_changelogs(self):
+    def test_source_validation_still_requires_changelogs(self):
         for name, old in (('CHANGELOG.md', '## 2026.11.1'), ('readme.txt', '= 2026.11.1 =')):
             with self.subTest(name=name):
                 original = (self.root / name).read_text()
@@ -66,8 +90,12 @@ class ReleaseTests(unittest.TestCase):
                     validate(self.root)
                 (self.root / name).write_text(original)
 
-    def test_rejects_invalid_version_scheme(self):
-        for value in ('0.1.0', '2026.011.1', '2026.13.1', '2026.11.01', '2026.11.1-beta1', '2026.11.1-rc.0'):
+    def test_tag_build_does_not_use_changelog_heading_as_version_source(self):
+        apply(self.root, '2026.12.1')
+        self.assertEqual(validate(self.root, '2026.12.1')['version'], '2026.12.1')
+
+    def test_rejects_invalid_source_version_scheme(self):
+        for value in ('0.1.0', '2026.1.1', '2026.011.1', '2026.13.1', '2026.11.01', '2026.11.1-beta.1', '2026.11.1-rc1'):
             with self.subTest(version=value):
                 original = (self.root / f'{SLUG}.php').read_text()
                 self.replace(f'{SLUG}.php', '2026.11.1', value)
