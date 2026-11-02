@@ -169,6 +169,7 @@ final class Checkout {
 				'type'          => 'checkbox',
 				'required'      => $required,
 				'hidden'        => $hidden,
+				'error_message' => __( 'Bitte bestätige den Hinweis zum Widerrufsrecht für die individuell angefertigten Lebensmittel.', 'patsch9-foodsettings' ),
 			)
 		);
 	}
@@ -217,9 +218,20 @@ final class Checkout {
 		}
 	}
 
+	private static function block_field_checked( $order ): bool {
+		if ( class_exists( '\Automattic\WooCommerce\Blocks\Package' ) && class_exists( '\Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields' ) ) {
+			try {
+				$fields = \Automattic\WooCommerce\Blocks\Package::container()->get( \Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields::class );
+				return true === $fields->get_field_from_object( self::BLOCK_FIELD_ID, $order, 'other' );
+			} catch ( \Throwable $e ) {
+				// Fall through to the documented persisted meta format for compatibility with unexpected container failures.
+			}
+		}
+		return '1' === (string) $order->get_meta( '_wc_other/' . self::BLOCK_FIELD_ID, true );
+	}
+
 	public static function save_block_acknowledgement( $order ): void {
-		$value = $order->get_meta( '_wc_other/' . self::BLOCK_FIELD_ID, true );
-		if ( '1' === (string) $value ) {
+		if ( self::block_field_checked( $order ) ) {
 			self::record_acknowledgement( $order, 'block', self::order_acknowledgement_product_ids( $order ) );
 		}
 	}
