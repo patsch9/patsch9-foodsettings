@@ -106,6 +106,8 @@ $v3['nutrition']['aggregated_set']['preparation'] = 'prepared';
 throws( static fn() => Sources::normalize_off( $v3, '12345678' ), 'Prepared source must not be silently used as sold.' );
 $off = Sources::normalize_off( array( 'nutriments' => array( 'sodium_100g' => .1 ) ), '12345678' );
 near( $off['nutrients']['salt'], .25, 'Legacy sodium conversion.' );
+$off_unknown = Sources::normalize_off( array( 'nutriments' => array( 'sodium_100g' => '' ) ), '12345678' );
+check( null === $off_unknown['nutrients']['salt'], 'Unknown sodium must not become zero salt.' );
 check( null === $off['nutrients']['energy_kj'], 'Missing energy never fabricated from macros.' );
 check( count( Sources::search_bls( 'Öl' ) ) > 0, 'German uppercase accent search.' );
 check( Sources::bls( 'P9B4000' )['basis'] === 'g', 'Alphanumeric BLS lookup.' );
@@ -125,3 +127,4 @@ foreach ( glob( P9PS_PATH . 'data/bls/?.json' ) as $file ) {
 }
 check( $nulls === $manifest['unknown_nutrient_values'], 'Unknown BLS values preserved.' );
 echo "PASS: $checks checks; " . count( $fixtures['cases'] ) . " official Nutri-Score reference cases; 7140 BLS records.\n";
+

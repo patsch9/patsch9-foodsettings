@@ -59,6 +59,8 @@ final class Sources {
 		// Atomic per-site lock spaces requests by 5 seconds (<=12/minute).
 		if ( ! add_option( 'p9ps_off_lock', time(), '', false ) ) {
 			global $wpdb;
+			// An atomic compare-and-swap is required; separate get_option()/update_option() calls race.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$acquired = $wpdb->query( $wpdb->prepare(
 				"UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND CAST(option_value AS UNSIGNED) <= %d",
 				(string) time(), 'p9ps_off_lock', time() - 5
@@ -125,7 +127,8 @@ final class Sources {
 				}
 			}
 			if ( null === $n['salt'] && isset( $legacy['sodium_100g'] ) && empty( $legacy['sodium_modifier'] ) ) {
-				$n['salt'] = Nutrition::number( $legacy['sodium_100g'] ) * 2.5;
+				$sodium = Nutrition::number( $legacy['sodium_100g'] );
+				$n['salt'] = null === $sodium ? null : $sodium * 2.5;
 			}
 		}
 		$n = Nutrition::clean( $n, $basis );
@@ -151,3 +154,4 @@ final class Sources {
 		);
 	}
 }
+

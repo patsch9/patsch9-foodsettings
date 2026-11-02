@@ -1,35 +1,130 @@
 name: Plugin checks
+
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
+  workflow_call:
+    outputs:
+      version:
+        value: ${{ jobs.package.outputs.version }}
+      prerelease:
+        value: ${{ jobs.package.outputs.prerelease }}
+
 permissions:
   contents: read
+
+concurrency:
+  group: checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/') }}
+
 jobs:
   php:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
         php: ['8.1', '8.3', '8.4']
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
       - name: PHP syntax
-        run: find . -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find includes tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l && php -l patsch9-productsettings.php
       - name: Domain, reference and dataset tests
         run: php tests/run.php
+
   package:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '22'
-      - run: node --check assets/admin.js
-      - run: python tools/build_zip.py
-      - uses: actions/upload-artifact@v4
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          name: patsch9-productsettings-installable
-          path: dist/*.zip
+          node-version: '24'
+      - name: Validate release metadata
+        id: version
+        run: python3 tools/release_metadata.py --github-output
+      - name: Release boundary and result gate regressions
+        run: |
+          python3 tests/test-release.py
+          python3 tests/test-plugin-check.py
+      - name: JavaScript syntax
+        run: node --check assets/admin.js
+      - name: Build installable package and checksum
+        run: python3 tools/build_zip.py
+      - name: Store release assets
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: release-assets
+          path: |
+            dist/*.zip
+            dist/*.zip.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+  wordpress:
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: release-assets
+          path: dist
+      - name: Verify and extract the actual installable package
+        env:
+          VERSION: ${{ needs.package.outputs.version }}
+        run: |
+          cd dist
+          sha256sum -c "patsch9-productsettings-${VERSION}.zip.sha256"
+          unzip -q "patsch9-productsettings-${VERSION}.zip" -d ../.release-build
+      - name: Start disposable WordPress and WooCommerce
+        run: |
+          npm ci --ignore-scripts --no-fund
+          npm audit --audit-level=high
+          echo "$PWD/node_modules/.bin" >> "$GITHUB_PATH"
+          mkdir -p .release-build/results
+          chmod 777 .release-build/results
+          jq -n --arg plugin "$PWD/.release-build/patsch9-productsettings" --arg tests "$PWD/tests" --arg results "$PWD/.release-build/results" \
+            '{core: null, testsEnvironment: false, mappings: {"wp-content/plugins/patsch9-productsettings": $plugin, "p9ps-tests": $tests, "p9ps-results": $results}}' > .wp-env.json
+          node_modules/.bin/wp-env start --update
+          node_modules/.bin/wp-env run cli wp plugin install woocommerce --activate
+          node_modules/.bin/wp-env run cli wp plugin install plugin-check --activate
+          node_modules/.bin/wp-env run cli wp plugin activate patsch9-productsettings
+      - name: Integration and security regressions against the installed package
+        run: wp-env run cli env P9PS_RUN_INTEGRATION_TESTS=1 wp eval-file p9ps-tests/integration.php
+      - name: Strict WordPress Plugin Check on the installed package
+        shell: bash
+        run: |
+          set +e
+          # GitHub-only distribution retains Update URI and the requested German readme.
+          # Ignore only these three directory policies; all technical checks remain strict.
+          wp-env run cli sh -c 'wp plugin check patsch9-productsettings --format=strict-json \
+            --ignore-codes=plugin_updater_detected,readme_short_description_non_official_language,readme_description_non_official_language \
+            --require=./wp-content/plugins/plugin-check/cli.php > /var/www/html/p9ps-results/plugin-check.txt 2>&1'
+          status=$?
+          set -e
+          cat .release-build/results/plugin-check.txt
+          python3 tests/check-plugin-check.py .release-build/results/plugin-check.txt "$status"
+      - name: Stop disposable environment
+        if: always()
+        run: wp-env destroy --force
+
