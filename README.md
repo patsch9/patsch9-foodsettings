@@ -1,6 +1,6 @@
 # P9 Product Settings – Lebensmittel
 
-Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährwertdaten und eigene Rezepturen. **Version 0.1.0 ist eine erste testbare Implementierung.** WooCommerce wird benötigt, Germanized/Germanized Pro nicht. Es wird kein Code aus Germanized Pro übernommen und keine Lizenzprüfung umgangen.
+Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährwertdaten und eigene Rezepturen. **Version 2026.11.1 ist für den ersten GitHub-Release vorbereitet.** WooCommerce wird benötigt, Germanized/Germanized Pro nicht. Es wird kein Code aus Germanized Pro übernommen und keine Lizenzprüfung umgangen.
 
 ## Funktionen
 
@@ -18,7 +18,7 @@ Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährw
 
 ## Installation
 
-1. Das ZIP aus dem GitHub-Actions-Artefakt verwenden. Darin befindet sich das installierbare `patsch9-productsettings-0.1.0.zip`. Alternativ lokal `python tools/build_zip.py` ausführen.
+1. Das installierbare ZIP unter [GitHub-Releases](https://github.com/patsch9/patsch9-productsettings/releases) herunterladen, sobald ein Release erstellt wurde, z. B. `patsch9-productsettings-2026.11.1.zip`. Vorab steht dasselbe Paket als `release-assets` im jeweiligen GitHub-Actions-Lauf bereit. Die zugehörige `.zip.sha256` erlaubt die Integritätsprüfung mit `sha256sum -c DATEI.zip.sha256`. Alternativ lokal `python3 tools/build_zip.py` ausführen.
 2. In WordPress unter **Plugins → Neues Plugin → Plugin hochladen** installieren und aktivieren. Den Ordnernamen `patsch9-productsettings` beibehalten. Ein ungeändert heruntergeladenes GitHub-Quellarchiv hat einen anderen Ordnernamen und ist nicht das empfohlene Updatepaket.
 3. Produkt im **klassischen WooCommerce-Produkteditor** öffnen, ggf. zuerst als Entwurf speichern.
 4. Produktdaten → Lebensmittel (P9) → Lebensmittel aktivieren und Angaben hinterlegen.
@@ -93,12 +93,19 @@ php tests/run.php
 find . -name '*.php' -not -path './dist/*' -print0 | xargs -0 -n1 php -l
 node --check assets/admin.js
 python tools/build_zip.py
+python3 tests/test-release.py
+python3 tests/test-plugin-check.py
 ```
 
-Integration ausschließlich in einer **separaten Wegwerf-Testinstallation** mit WooCommerce und WP-CLI: `wp eval-file tests/integration.php`. Dieser Test legt Produkte und einen Testbenutzer an und verändert die P9-Einstellungen. Nicht im Live-Shop ausführen.
+Integration ausschließlich in einer **separaten Wegwerf-Testinstallation** mit WooCommerce und WP-CLI: `P9PS_RUN_INTEGRATION_TESTS=1 wp eval-file tests/integration.php`. Dieser Test legt Produkte und einen Testbenutzer an und verändert die P9-Einstellungen. Nicht im Live-Shop ausführen.
+
+Der Workflow `Plugin checks` prüft PHP 8.1/8.3/8.4, Domänen-/Referenz-/Datentests, JavaScript, Release-Metadaten und Paketgrenzen. Anschließend wird das erzeugte ZIP in einer frischen WordPress-/WooCommerce-Installation mit echter Datenbank installiert. Die Integrations- und Sicherheitsregressionen sowie der strenge WordPress Plugin Check laufen auf diesem Paket. Fehler, Warnungen und unvollständige Checker-Ausgabe blockieren die Freigabe.
+
+Release-Tags verwenden wie die anderen P9-Plugins `vYYYY.M.N`, optional `-alpha.N`, `-beta.N` oder `-rc.N`. Sie müssen exakt zur Plugin-Version passen und auf einen Commit in `main` zeigen. Der Release-Workflow verwendet dieselben Checks und veröffentlicht danach das bereits geprüfte ZIP samt SHA-256-Prüfsumme auf GitHub. Es gibt keinen WordPress.org-/SVN-Deploy und keinen automatischen Updater; GitHub-Updates werden per ZIP installiert. Ablauf: [VERSIONING.md](VERSIONING.md). Sicherheitskonzept und Meldungen: [SECURITY.md](SECURITY.md).
 
 Referenzen: [Germanized-Funktionsbeschreibung](https://vendidero.de/doc/woocommerce-germanized/lebensmittel-auszeichnen), [offizieller Nutri-Score-Rechner und Nutzungsbedingungen](https://www.santepubliquefrance.fr/en/nutrition-and-physical-activity/nutri-score), [LMIV, VO (EU) 1169/2011](https://eur-lex.europa.eu/eli/reg/2011/1169/oj).
 
 ## Lizenz
 
 Plugin-Code: GPL-2.0-or-later, siehe [LICENSE](LICENSE). BLS-Daten: CC BY 4.0. Importierte OFF-Daten: ODbL/Dateninhaltslizenz laut Quelle. Nutri-Score-Marken und offizielle Grafiken verbleiben bei den jeweiligen Rechteinhabern.
+

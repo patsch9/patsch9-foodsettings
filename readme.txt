@@ -4,7 +4,7 @@ Tags: woocommerce, food, nutrition, ingredients, allergens
 Requires at least: 6.7
 Requires PHP: 8.1
 Requires Plugins: woocommerce
-Stable tag: 0.1.0
+Stable tag: 2026.11.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,5 +55,11 @@ Nein. Öffentlich erscheinen ausschließlich freigegebene Deklarationen und Quel
 
 == Changelog ==
 
+= 2026.11.1 =
+* GitHub-Releases mit geprüften Installationspaketen, SHA-256-Prüfsummen und einheitlicher Versionierung.
+* Verbindliche WordPress-/WooCommerce-, Sicherheits- und Paketprüfungen vor jeder Veröffentlichung.
+* Passwortgeschützte Produktangaben geschützt; unbekannte Natriumwerte bleiben unbekannt.
+
 = 0.1.0 =
 * Erste Implementierung: Lebensmittelfelder, BLS-4.0-Datensatz, OFF-v3-Import, Rezepteditor, Nutri-Score-2023-Rechner und Prüffreigabe.
+

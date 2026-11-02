@@ -125,7 +125,8 @@ final class Sources {
 				}
 			}
 			if ( null === $n['salt'] && isset( $legacy['sodium_100g'] ) && empty( $legacy['sodium_modifier'] ) ) {
-				$n['salt'] = Nutrition::number( $legacy['sodium_100g'] ) * 2.5;
+				$sodium = Nutrition::number( $legacy['sodium_100g'] );
+				$n['salt'] = null === $sodium ? null : $sodium * 2.5;
 			}
 		}
 		$n = Nutrition::clean( $n, $basis );
@@ -151,3 +152,4 @@ final class Sources {
 		);
 	}
 }
+

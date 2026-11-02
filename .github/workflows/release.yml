@@ -1,0 +1,68 @@
+name: Build and publish release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require matching tag and commit contained in main
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_commit="$(git rev-parse "${GITHUB_REF}^{commit}")"
+          git merge-base --is-ancestor "$tag_commit" origin/main || {
+            echo '::error::Release tags must point to a commit contained in main.'
+            exit 1
+          }
+          python3 tools/release_metadata.py --tag "$GITHUB_REF_NAME"
+
+  checks:
+    needs: validate
+    uses: ./.github/workflows/checks.yml
+    permissions:
+      contents: read
+
+  publish:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download tested release assets
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: release-assets
+      - name: Verify checksum and publish GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.checks.outputs.version }}
+          PRERELEASE: ${{ needs.checks.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          archive="patsch9-productsettings-${VERSION}.zip"
+          sha256sum -c "${archive}.sha256"
+          args=(release create "$GITHUB_REF_NAME" "$archive" "${archive}.sha256"
+            --repo "$GH_REPO" --verify-tag
+            --title "P9 Product Settings – Lebensmittel ${VERSION}" --generate-notes)
+          if [[ "$PRERELEASE" == 'true' ]]; then
+            args+=(--prerelease --latest=false)
+          fi
+          gh "${args[@]}"

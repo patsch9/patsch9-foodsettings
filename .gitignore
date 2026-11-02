@@ -2,3 +2,8 @@
 /.DS_Store
 /vendor/
 /node_modules/
+/.release-build/
+/.wp-env.json
+__pycache__/
+*.pyc
+

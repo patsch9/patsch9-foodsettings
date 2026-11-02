@@ -37,6 +37,9 @@ final class Frontend {
 		if ( ! $product || ( 'publish' !== $product->get_status() && ! current_user_can( 'edit_post', $product->get_id() ) ) ) {
 			return '';
 		}
+		if ( post_password_required( $product->get_id() ) && ! current_user_can( 'edit_post', $product->get_id() ) ) {
+			return '';
+		}
 		$d = ProductData::get( $product );
 		if ( ! ProductData::approved( $d ) || ProductData::publication_errors( $d, $product->is_type( 'variable' ) ) ) {
 			return '';
@@ -126,3 +129,4 @@ final class Frontend {
 		}
 	}
 }
+
