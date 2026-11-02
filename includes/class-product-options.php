@@ -26,7 +26,7 @@ final class ProductOptions {
 		$options['patsch9fs_food_enabled'] = array(
 			'id'            => ProductData::FOOD_ENABLED_META,
 			'wrapper_class' => '',
-			'label'         => __( 'Lebensmittel', 'patsch9-foodsettings' ),
+			'label'         => __( 'Lebensmittel (P9)', 'patsch9-foodsettings' ),
 			'description'   => __( 'Aktiviert die Lebensmitteldaten von Patsch9 Food Settings für dieses Produkt.', 'patsch9-foodsettings' ),
 			'default'       => $default,
 		);
@@ -34,7 +34,8 @@ final class ProductOptions {
 	}
 
 	private static function authorized( $product ): bool {
-		if ( empty( $_POST['patsch9fs_present'] ) || ! isset( $_POST['patsch9fs_nonce'] ) ) {
+		$present = isset( $_POST['patsch9fs_present'] ) ? sanitize_text_field( wp_unslash( $_POST['patsch9fs_present'] ) ) : '';
+		if ( '1' !== $present || ! isset( $_POST['patsch9fs_nonce'] ) ) {
 			return false;
 		}
 		$nonce = sanitize_text_field( wp_unslash( $_POST['patsch9fs_nonce'] ) );
@@ -50,14 +51,16 @@ final class ProductOptions {
 		if ( ! isset( $_POST['patsch9fs'] ) || ! is_array( $_POST['patsch9fs'] ) ) {
 			$_POST['patsch9fs'] = array();
 		}
-		if ( ! empty( $_POST[ ProductData::FOOD_ENABLED_META ] ) ) {
+		$food_enabled = isset( $_POST[ ProductData::FOOD_ENABLED_META ] ) && 'on' === sanitize_text_field( wp_unslash( $_POST[ ProductData::FOOD_ENABLED_META ] ) );
+		if ( $food_enabled ) {
 			$_POST['patsch9fs']['enabled'] = '1';
 		} else {
 			unset( $_POST['patsch9fs']['enabled'] );
 		}
 
+		$withdrawal_present = isset( $_POST['patsch9fs_withdrawal_present'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['patsch9fs_withdrawal_present'] ) );
 		// If the enhancement script did not run, do not silently erase an existing legal checkout setting.
-		if ( empty( $_POST['patsch9fs_withdrawal_present'] ) ) {
+		if ( ! $withdrawal_present ) {
 			$old = ProductData::get( $product );
 			if ( ! empty( $old['withdrawal_ack'] ) ) {
 				$_POST['patsch9fs']['withdrawal_ack'] = '1';
