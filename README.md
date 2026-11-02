@@ -6,6 +6,7 @@ Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährw
 
 - Produktdaten-Reiter **Lebensmittel (Patsch9)** im klassischen Produkteditor.
 - Zutatenliste mit sicherer HTML-Hervorhebung, Übersicht der 14 Allergenklassen, getrennte Spurenhinweise.
+- Mehrzeilige **Zutatenhinweise** für ergänzende Warntexte und Kakaoangaben, mit eigener Anzeige unter der Zutatenliste und Aufnahme in Bestell-Snapshots.
 - Nährwerttabelle je 100 g / 100 ml, optional zusätzlich je Portion, mit kJ und kcal sowie Fett, gesättigten Fettsäuren, Kohlenhydraten, Zucker, Eiweiß, Salz und optional Ballaststoffen.
 - Bezeichnung des Lebensmittels, Nettofüllmenge, Abtropfgewicht, Lebensmittelunternehmer/Anschrift, Herkunft, Lagerung, Zubereitung, Haltbarkeitshinweis und Alkoholgehalt.
 - **7.140 Lebensmittel des BLS 4.0 lokal enthalten**, ohne API-Schlüssel, Registrierung oder Laufzeitkosten. Suche nach deutschen Begriffen oder BLS-Code.
@@ -27,6 +28,21 @@ Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährw
 6. Ausgabe im verwendeten Theme überprüfen. Bei Block-Vorlagen ohne den klassischen Produkt-Tab den Shortcode-Block ergänzen.
 
 Voraussetzungen: WordPress ab 6.7, PHP ab 8.1, WooCommerce ab 9.0. Getestete konkrete Umgebung und Grenzen stehen in [VALIDATION.md](VALIDATION.md). Der neue React-Produkteditor wird in dieser Version nicht unterstützt.
+
+## Zusätzliche Zutatenhinweise
+
+Unter **Produktdaten → Lebensmittel (Patsch9) → Zutaten, Allergene und Deklaration** steht direkt unter der Zutatenliste das optionale Feld **Zutatenhinweise**. Dort zusätzliche Angaben im geprüften Wortlaut eintragen, beispielsweise:
+
+```text
+E102, E110, E129: Kann Aktivität und Aufmerksamkeit bei Kindern beeinträchtigen.
+Kakao: 35 % mindestens in der verwendeten Schokolade.
+Kakao: 54,5 % mindestens in der verwendeten Schokoladenkuvertüre.
+Kakao: 31,7 % mindestens in der verwendeten Milchschokoladenkuvertüre.
+```
+
+Die Beispiele werden nicht vorbelegt. Nur die zum konkreten Produkt gehörenden Angaben eintragen. Das Plugin berechnet oder ergänzt diese Hinweise nicht automatisch. Es speichert Klartext und erhält Zeilenumbrüche; HTML-Auszeichnung gehört weiterhin in die Zutatenliste. Nach der Prüffreigabe erscheinen die Hinweise im Produkt-Tab bzw. Shortcode direkt unter den Zutaten.
+
+Neue oder geänderte Hinweise erfordern eine erneute Freigabe. Ein leeres Feld erhält vorhandene Freigaben und erzeugt keine zusätzliche Überschrift im Shop. Hinweise bleiben bei Validierungsfehlern in der privaten Editor-Wiederherstellung erhalten und werden mit der freigegebenen Deklaration in Bestellpositionen archiviert. Historische Bestell-Snapshots bleiben unverändert.
 
 ## Handelsprodukt importieren
 

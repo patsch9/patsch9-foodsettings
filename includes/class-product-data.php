@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 final class ProductData {
 	public const META = '_patsch9fs_food';
 	public const ALLERGEN_IDS = array( 'en:gluten', 'en:crustaceans', 'en:eggs', 'en:fish', 'en:peanuts', 'en:soybeans', 'en:milk', 'en:nuts', 'en:celery', 'en:mustard', 'en:sesame-seeds', 'en:sulphur-dioxide-and-sulphites', 'en:lupin', 'en:molluscs' );
-	public const TEXT_FIELDS = array( 'designation', 'net_quantity', 'drained_weight', 'operator', 'origin', 'storage', 'instructions', 'shelf_life', 'traces' );
+	public const TEXT_FIELDS = array( 'designation', 'net_quantity', 'drained_weight', 'operator', 'origin', 'storage', 'instructions', 'shelf_life', 'traces', 'ingredient_notes' );
 
 	public static function allergens(): array {
 		return array_combine( self::ALLERGEN_IDS, array( 'Glutenhaltiges Getreide', 'Krebstiere', 'Eier', 'Fisch', 'Erdnüsse', 'Soja', 'Milch (einschl. Laktose)', 'Schalenfrüchte', 'Sellerie', 'Senf', 'Sesam', 'Schwefeldioxid/Sulfite', 'Lupinen', 'Weichtiere' ) );
@@ -103,6 +103,10 @@ final class ProductData {
 	}
 	public static function fingerprint( array $d ): string {
 		unset( $d['review_hash'], $d['reviewed_at'], $d['reviewed_by'] );
+		// Empty optional additions must preserve hashes issued before the field existed.
+		if ( '' === ( $d['ingredient_notes'] ?? '' ) ) {
+			unset( $d['ingredient_notes'] );
+		}
 		return hash( 'sha256', wp_json_encode( $d, JSON_PRESERVE_ZERO_FRACTION ) );
 	}
 	public static function approved( array $d ): bool {
