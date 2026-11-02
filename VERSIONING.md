@@ -27,7 +27,7 @@ Der Release-Workflow validiert zuerst den Tag und stellt weiterhin sicher, dass 
 Für den eigentlichen Release-Build wird anschließend eine temporäre Arbeitskopie verwendet. Dort setzt `tools/apply_release_version.py` die Tag-Version automatisch in:
 
 1. `Version` im Plugin-Header.
-2. `P9PS_VERSION`.
+2. `PATSCH9FS_VERSION`.
 3. `Stable tag` in `readme.txt`.
 4. den Dateinamen des Release-ZIPs und seiner SHA-256-Datei.
 5. Titel und Versionsnummer des GitHub Releases.

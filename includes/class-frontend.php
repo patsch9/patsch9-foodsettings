@@ -1,5 +1,5 @@
 <?php
-namespace P9PS;
+namespace PATSCH9FS;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -8,7 +8,7 @@ final class Frontend {
 		add_filter( 'woocommerce_product_tabs', static function ( $tabs ) {
 			global $product;
 			if ( $product && ProductData::approved( ProductData::get( $product ) ) ) {
-				$tabs['p9ps_food'] = array( 'title' => __( 'Zutaten & Nährwerte', 'patsch9-foodsettings' ), 'priority' => 25, 'callback' => static function () {
+				$tabs['patsch9fs_food'] = array( 'title' => __( 'Zutaten & Nährwerte', 'patsch9-foodsettings' ), 'priority' => 25, 'callback' => static function () {
 					global $product;
 					// All output is escaped inside render().
 					echo self::render( $product ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -16,8 +16,8 @@ final class Frontend {
 			}
 			return $tabs;
 		} );
-		add_shortcode( 'p9ps_food', static function ( $atts ) {
-			$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'p9ps_food' );
+		add_shortcode( 'patsch9fs_food', static function ( $atts ) {
+			$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'patsch9fs_food' );
 			return self::render( wc_get_product( absint( $atts['id'] ) ) );
 		} );
 		add_action( 'woocommerce_checkout_create_order_line_item', static function ( $item ) { self::snapshot( $item ); } );
@@ -44,7 +44,7 @@ final class Frontend {
 		if ( ! ProductData::approved( $d ) || ProductData::publication_errors( $d, $product->is_type( 'variable' ) ) ) {
 			return '';
 		}
-		$html = '<section class="p9ps-food" aria-label="Lebensmittelinformationen">';
+		$html = '<section class="patsch9fs-food" aria-label="Lebensmittelinformationen">';
 		if ( $d['designation'] ) {
 			$html .= '<h3>' . esc_html( $d['designation'] ) . '</h3>';
 		}
@@ -60,7 +60,7 @@ final class Frontend {
 		}
 		$n = $d['nutrients'];
 		if ( ! Nutrition::missing( $n ) ) {
-			$html .= '<table class="shop_attributes p9ps-nutrition"><caption>Durchschnittliche Nährwerte</caption><thead><tr><th scope="col">Nährwert</th><th scope="col">Je 100 ' . esc_html( $d['basis'] ) . '</th>';
+			$html .= '<table class="shop_attributes patsch9fs-nutrition"><caption>Durchschnittliche Nährwerte</caption><thead><tr><th scope="col">Nährwert</th><th scope="col">Je 100 ' . esc_html( $d['basis'] ) . '</th>';
 			if ( $d['portion'] ) {
 				$html .= '<th scope="col">Je Portion (' . esc_html( number_format_i18n( $d['portion'], 1 ) . ' ' . $d['basis'] ) . ')</th>';
 			}
@@ -88,17 +88,17 @@ final class Frontend {
 			$details .= '<dt><strong>Alkoholgehalt</strong></dt><dd>' . esc_html( number_format_i18n( $d['alcohol'], 1 ) . ' % vol' ) . '</dd>';
 		}
 		if ( '' !== $details ) {
-			$html .= '<dl class="p9ps-details">' . $details . '</dl>';
+			$html .= '<dl class="patsch9fs-details">' . $details . '</dl>';
 		}
 		$score = ProductData::score( $d );
-		if ( $d['show_score'] && ! empty( $score['grade'] ) && 'yes' === get_option( 'p9ps_nutri_rights', 'no' ) ) {
-			$id = absint( get_option( 'p9ps_logo_' . $score['grade'], 0 ) );
+		if ( $d['show_score'] && ! empty( $score['grade'] ) && 'yes' === get_option( 'patsch9fs_nutri_rights', 'no' ) ) {
+			$id = absint( get_option( 'patsch9fs_logo_' . $score['grade'], 0 ) );
 			if ( 'attachment' === get_post_type( $id ) && in_array( get_post_mime_type( $id ), array( 'image/png', 'image/jpeg', 'image/webp' ), true ) ) {
-				$html .= wp_get_attachment_image( $id, 'medium', false, array( 'alt' => 'Nutri-Score ' . strtoupper( $score['grade'] ), 'class' => 'p9ps-nutriscore', 'style' => 'max-width:240px;height:auto' ) );
+				$html .= wp_get_attachment_image( $id, 'medium', false, array( 'alt' => 'Nutri-Score ' . strtoupper( $score['grade'] ), 'class' => 'patsch9fs-nutriscore', 'style' => 'max-width:240px;height:auto' ) );
 			}
 		}
 		if ( $d['sources'] ) {
-			$html .= '<p class="p9ps-sources"><small>Datenquellen (ggf. für die Rezeptur angepasst): ';
+			$html .= '<p class="patsch9fs-sources"><small>Datenquellen (ggf. für die Rezeptur angepasst): ';
 			$links = array();
 			foreach ( $d['sources'] as $s ) {
 				if ( 'bls' === $s['provider'] ) {
@@ -112,7 +112,7 @@ final class Frontend {
 		return $html . '</section>';
 	}
 	public static function snapshot( $item ): void {
-		if ( $item->get_meta( '_p9ps_food_snapshot', true ) ) {
+		if ( $item->get_meta( '_patsch9fs_food_snapshot', true ) ) {
 			return;
 		}
 		$product = $item->get_product();
@@ -127,7 +127,7 @@ final class Frontend {
 			// Store declaration, never private ingredient quantities or recipe snapshots.
 			unset( $d['recipe'], $d['yield'], $d['reviewed_by'] );
 			$d['recorded_at'] = gmdate( 'c' );
-			$item->add_meta_data( '_p9ps_food_snapshot', $d, true );
+			$item->add_meta_data( '_patsch9fs_food_snapshot', $d, true );
 		}
 	}
 }

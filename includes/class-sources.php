@@ -1,11 +1,11 @@
 <?php
-namespace P9PS;
+namespace PATSCH9FS;
 
 defined( 'ABSPATH' ) || exit;
 
 final class Sources {
 	public static function search_bls( string $query ): array {
-		$index = json_decode( file_get_contents( P9PS_PATH . 'data/bls/index.json' ), true );
+		$index = json_decode( file_get_contents( PATSCH9FS_PATH . 'data/bls/index.json' ), true );
 		$query = strtolower( remove_accents( $query ) );
 		$words = preg_split( '/\s+/', $query, -1, PREG_SPLIT_NO_EMPTY );
 		$out = array();
@@ -25,7 +25,7 @@ final class Sources {
 		if ( ! preg_match( '/^[A-Z][A-Z0-9]{6}$/D', $id ) ) {
 			throw new \InvalidArgumentException( 'Ungültiger BLS-Code.' );
 		}
-		$path = P9PS_PATH . 'data/bls/' . $id[0] . '.json';
+		$path = PATSCH9FS_PATH . 'data/bls/' . $id[0] . '.json';
 		$data = is_file( $path ) ? json_decode( file_get_contents( $path ), true ) : array();
 		if ( ! isset( $data[ $id ] ) ) {
 			throw new \InvalidArgumentException( 'BLS-Eintrag nicht gefunden.' );
@@ -51,39 +51,39 @@ final class Sources {
 		if ( ! preg_match( '/^\d{8,14}$/D', $barcode ) ) {
 			throw new \InvalidArgumentException( 'Barcode muss aus 8 bis 14 Ziffern bestehen.' );
 		}
-		if ( 'yes' !== get_option( 'p9ps_off_enabled', 'no' ) ) {
+		if ( 'yes' !== get_option( 'patsch9fs_off_enabled', 'no' ) ) {
 			throw new \RuntimeException( 'Open Food Facts zuerst unter WooCommerce > Lebensmitteldaten aktivieren.' );
 		}
-		$cached = get_transient( 'p9ps_off_' . $barcode );
+		$cached = get_transient( 'patsch9fs_off_' . $barcode );
 		if ( is_array( $cached ) ) {
 			return $cached;
 		}
 		// Atomic per-site lock spaces requests by 5 seconds (<=12/minute).
-		if ( ! add_option( 'p9ps_off_lock', time(), '', false ) ) {
+		if ( ! add_option( 'patsch9fs_off_lock', time(), '', false ) ) {
 			global $wpdb;
 			// An atomic compare-and-swap is required; separate get_option()/update_option() calls race.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$acquired = $wpdb->query( $wpdb->prepare(
 				"UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND CAST(option_value AS UNSIGNED) <= %d",
-				(string) time(), 'p9ps_off_lock', time() - 5
+				(string) time(), 'patsch9fs_off_lock', time() - 5
 			) );
 			if ( 1 !== $acquired ) {
 				throw new \RuntimeException( 'Bitte fünf Sekunden bis zur nächsten Barcodeabfrage warten.' );
 			}
-			wp_cache_delete( 'p9ps_off_lock', 'options' );
+			wp_cache_delete( 'patsch9fs_off_lock', 'options' );
 		}
 		$fields = 'code,product_name,product_name_de,brands,ingredients_text_de,ingredients_text,ingredients_text_with_allergens_de,allergens_tags,traces_tags,nutrition,nutriments,nutrition_data_per,nutriscore,nutriscore_grade,nutriscore_version,last_modified_t,product_quantity_unit';
 		$url = 'https://world.openfoodfacts.org/api/v3.6/product/' . $barcode . '.json?lc=de&fields=' . rawurlencode( $fields );
 		$response = wp_safe_remote_get( $url, array(
 			'timeout' => 12, 'redirection' => 0, 'limit_response_size' => 512000,
-			'user-agent' => 'Patsch9FoodSettings/' . P9PS_VERSION . ' (https://github.com/patsch9/patsch9-foodsettings)',
+			'user-agent' => 'Patsch9FoodSettings/' . PATSCH9FS_VERSION . ' (https://github.com/patsch9/patsch9-foodsettings)',
 		) );
 		if ( is_wp_error( $response ) ) {
 			throw new \RuntimeException( 'Open Food Facts ist momentan nicht erreichbar.' );
 		}
 		$status = wp_remote_retrieve_response_code( $response );
 		if ( 429 === $status || $status >= 500 ) {
-			update_option( 'p9ps_off_lock', time() + 60, false );
+			update_option( 'patsch9fs_off_lock', time() + 60, false );
 			throw new \RuntimeException( 'Open Food Facts hat die Abfrage begrenzt oder ist ausgelastet. Bitte später erneut versuchen.' );
 		}
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -91,7 +91,7 @@ final class Sources {
 			throw new \RuntimeException( 'Kein passendes Lebensmittel bei Open Food Facts gefunden.' );
 		}
 		$record = self::normalize_off( $body['product'], $barcode );
-		set_transient( 'p9ps_off_' . $barcode, $record, DAY_IN_SECONDS );
+		set_transient( 'patsch9fs_off_' . $barcode, $record, DAY_IN_SECONDS );
 		return $record;
 	}
 

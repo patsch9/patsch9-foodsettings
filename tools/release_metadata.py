@@ -29,12 +29,12 @@ def validate(root, tag=None):
     plugin = (root / f'{SLUG}.php').read_text(encoding='utf-8')
     readme = (root / 'readme.txt').read_text(encoding='utf-8')
     version = required(r'^\s*\*\s*Version:\s*([^\s]+)', plugin, 'plugin version')
-    constant = required(r"define\(\s*'P9PS_VERSION'\s*,\s*'([^']+)'\s*\)", plugin, 'P9PS_VERSION')
+    constant = required(r"define\(\s*'PATSCH9FS_VERSION'\s*,\s*'([^']+)'\s*\)", plugin, 'PATSCH9FS_VERSION')
     stable = required(r'^Stable tag:\s*([^\s]+)\s*$', readme, 'Stable tag')
 
     result = parse_release_version(version)
     if version != constant:
-        raise ValueError('Plugin header and P9PS_VERSION differ.')
+        raise ValueError('Plugin header and PATSCH9FS_VERSION differ.')
 
     if tag is not None:
         parse_release_version(tag)

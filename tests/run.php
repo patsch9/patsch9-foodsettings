@@ -1,10 +1,10 @@
 <?php
 require __DIR__ . '/bootstrap.php';
-use P9PS\Nutrition;
-use P9PS\Nutriscore;
-use P9PS\Recipe;
-use P9PS\ProductData;
-use P9PS\Sources;
+use PATSCH9FS\Nutrition;
+use PATSCH9FS\Nutriscore;
+use PATSCH9FS\Recipe;
+use PATSCH9FS\ProductData;
+use PATSCH9FS\Sources;
 
 $checks = 0;
 function check( bool $condition, string $message ): void {
@@ -120,12 +120,12 @@ check( Sources::bls( 'P9B4000' )['basis'] === 'g', 'Alphanumeric BLS lookup.' );
 throws( static fn() => Sources::bls( '../file' ), 'No path traversal.' );
 throws( static fn() => Sources::off( 'https://127.0.0.1' ), 'No arbitrary remote endpoint.' );
 
-$manifest = json_decode( file_get_contents( P9PS_PATH . 'data/bls/manifest.json' ), true );
-$index = json_decode( file_get_contents( P9PS_PATH . 'data/bls/index.json' ), true );
+$manifest = json_decode( file_get_contents( PATSCH9FS_PATH . 'data/bls/manifest.json' ), true );
+$index = json_decode( file_get_contents( PATSCH9FS_PATH . 'data/bls/index.json' ), true );
 check( count( $index ) === 7140 && $manifest['records'] === 7140, 'All BLS records bundled.' );
 $nulls = 0;
 $checked_bls_conflict = false;
-foreach ( glob( P9PS_PATH . 'data/bls/?.json' ) as $file ) {
+foreach ( glob( PATSCH9FS_PATH . 'data/bls/?.json' ) as $file ) {
     foreach ( json_decode( file_get_contents( $file ), true ) as $id => $record ) {
         check( isset( $index[$id] ), 'BLS index/data consistency.' );
         check( count( $record['nutrients'] ) === 9, 'BLS nine-nutrient schema.' );

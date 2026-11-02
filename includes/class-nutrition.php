@@ -1,5 +1,5 @@
 <?php
-namespace P9PS;
+namespace PATSCH9FS;
 
 /** Pure numeric routines; unknown values are null, never an assumed zero. */
 final class Nutrition {

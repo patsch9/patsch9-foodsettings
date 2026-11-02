@@ -1,5 +1,5 @@
 {
-  "name": "patsch9-productsettings-checks",
+  "name": "patsch9-foodsettings-checks",
   "private": true,
   "description": "Development-only WordPress integration test harness",
   "devDependencies": {
