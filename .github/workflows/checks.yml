@@ -11,6 +11,11 @@ on:
         required: false
         type: boolean
         default: false
+      release_version:
+        description: Exact validated release tag to inject into the release package
+        required: false
+        type: string
+        default: ''
     outputs:
       version:
         value: ${{ jobs.package.outputs.version }}
@@ -61,9 +66,32 @@ jobs:
         with:
           node-version: '24'
           cache: npm
+
+      - name: Apply release version from tag
+        if: ${{ inputs.release_only }}
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$RELEASE_VERSION" ]]; then
+            echo '::error::release_version is required for release-only builds.'
+            exit 1
+          fi
+          python3 tools/apply_release_version.py "$RELEASE_VERSION"
+
       - name: Validate release metadata
         id: version
-        run: python3 tools/release_metadata.py --github-output
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$RELEASE_VERSION" ]]; then
+            python3 tools/release_metadata.py --tag "$RELEASE_VERSION" --github-output
+          else
+            python3 tools/release_metadata.py --github-output
+          fi
+
       - name: Release boundary and result gate regressions
         run: |
           python3 tests/test-release.py
@@ -71,7 +99,16 @@ jobs:
       - name: JavaScript syntax
         run: node --check assets/admin.js
       - name: Build installable package and checksum
-        run: python3 tools/build_zip.py
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$RELEASE_VERSION" ]]; then
+            python3 tools/build_zip.py --release-version "$RELEASE_VERSION"
+          else
+            python3 tools/build_zip.py
+          fi
 
       - name: Verify and extract the actual installable package
         if: ${{ !inputs.release_only }}

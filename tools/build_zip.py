@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Build a deterministic installable ZIP and checksum using a runtime allowlist."""
+import argparse
 import hashlib
 from pathlib import Path
 from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
@@ -37,8 +38,8 @@ def runtime_paths(root):
     return sorted(paths)
 
 
-def build(root):
-    version = validate(root)['version']
+def build(root, release_version=None):
+    version = validate(root, release_version)['version']
     paths = runtime_paths(root)
     out = root / 'dist' / f'{SLUG}-{version}.zip'
     out.parent.mkdir(exist_ok=True)
@@ -58,5 +59,7 @@ def build(root):
 
 
 if __name__ == '__main__':
-    print(build(Path(__file__).resolve().parents[1]))
-
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--release-version')
+    args = parser.parse_args()
+    print(build(Path(__file__).resolve().parents[1], args.release_version))

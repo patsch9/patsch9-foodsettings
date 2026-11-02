@@ -2,7 +2,8 @@ name: Build and publish release
 
 on:
   push:
-    tags: ['v*']
+    tags:
+      - '[0-9][0-9][0-9][0-9].[0-9][0-9].*'
 
 permissions:
   contents: read
@@ -16,17 +17,23 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Require matching tag, main ancestry and merged PR
+      - name: Require valid tag, main ancestry and merged PR
+        id: version
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          python3 tools/release_metadata.py --tag-only "$GITHUB_REF_NAME" --github-output
+
           tag_commit="$(git rev-parse "${GITHUB_REF}^{commit}")"
           git merge-base --is-ancestor "$tag_commit" origin/main || {
             echo '::error::Release tags must point to a commit contained in main.'
@@ -41,13 +48,12 @@ jobs:
             exit 1
           fi
 
-          python3 tools/release_metadata.py --tag "$GITHUB_REF_NAME"
-
   checks:
     needs: validate
     uses: ./.github/workflows/checks.yml # zizmor: ignore[self-repository] -- Portable same-commit reusable workflow syntax, matching the other P9 repositories.
     with:
       release_only: true
+      release_version: ${{ needs.validate.outputs.version }}
     permissions:
       contents: read
 
