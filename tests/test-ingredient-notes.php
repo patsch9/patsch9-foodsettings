@@ -13,10 +13,10 @@ $notes = "E102, E110, E129: Kann Aktivität und Aufmerksamkeit bei Kindern beein
 $data = ProductData::sanitize( array( 'enabled' => true, 'ingredients' => 'Zucker' ) );
 notes_check( '' === $data['ingredient_notes'], 'New field defaults to empty.' );
 $legacy = $data;
-unset( $legacy['ingredient_notes'], $legacy['review_hash'], $legacy['reviewed_at'], $legacy['reviewed_by'] );
+unset( $legacy['ingredient_notes'], $legacy['withdrawal_ack'], $legacy['review_hash'], $legacy['reviewed_at'], $legacy['reviewed_by'] );
 $legacy_hash = hash( 'sha256', wp_json_encode( $legacy, JSON_PRESERVE_ZERO_FRACTION ) );
 $data['review_hash'] = $legacy_hash;
-notes_check( ProductData::approved( $data ), 'Existing approval survives an empty new field without recalculating its old hash.' );
+notes_check( ProductData::approved( $data ), 'Existing approval survives empty fields added after the legacy hash was issued.' );
 $data['ingredient_notes'] = $notes;
 notes_check( ! ProductData::approved( $data ), 'New notes revoke the previous approval.' );
 $data['review_hash'] = ProductData::fingerprint( $data );
