@@ -1,20 +1,20 @@
-.p9ps-wrap { padding: 16px 24px; max-width: 1050px; }
-.p9ps-wrap p { padding: 0 !important; margin: 10px 0 !important; line-height: 1.55; }
-.p9ps-wrap details { border-top: 1px solid #dcdcde; padding: 16px 0; }
-.p9ps-wrap summary { cursor: pointer; font-weight: 600; font-size: 14px; }
-.p9ps-wrap input, .p9ps-wrap textarea, .p9ps-wrap select { float: none !important; width: 100% !important; max-width: 100%; }
-.p9ps-wrap input[type=checkbox] { width: 16px !important; }
-.p9ps-wrap label { float: none !important; width: auto !important; margin: 0 !important; display: block; }
-.p9ps-field { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(180px, 2fr); gap: 12px; margin: 14px 0; align-items: start; }
-.p9ps-nutrient-grid, .p9ps-allergens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
-.p9ps-search { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; align-items: center; }
-.p9ps-search input, .p9ps-search select { flex: 1; min-width: 160px; }
-.p9ps-recipe-row { background: #f6f7f7; padding: 12px !important; margin: 12px 0; }
-.p9ps-recipe-row > label { margin-top: 10px !important; }
-.p9ps-review { padding: 16px; background: #f0f6fc; border-left: 4px solid #2271b1; }
-.p9ps-review label { line-height: 1.6; }
-.p9ps-error { color: #b32d2e; }
-#p9ps-message { margin: 12px 0; font-weight: 600; }
-#p9ps-source-preview button { margin: 12px 8px 0 0; }
-.p9ps-settings { max-width: 1000px; line-height: 1.6; }
-@media (max-width: 800px) { .p9ps-field { grid-template-columns: 1fr; } .p9ps-nutrient-grid, .p9ps-allergens { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.patsch9fs-wrap { padding: 16px 24px; max-width: 1050px; }
+.patsch9fs-wrap p { padding: 0 !important; margin: 10px 0 !important; line-height: 1.55; }
+.patsch9fs-wrap details { border-top: 1px solid #dcdcde; padding: 16px 0; }
+.patsch9fs-wrap summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.patsch9fs-wrap input, .patsch9fs-wrap textarea, .patsch9fs-wrap select { float: none !important; width: 100% !important; max-width: 100%; }
+.patsch9fs-wrap input[type=checkbox] { width: 16px !important; }
+.patsch9fs-wrap label { float: none !important; width: auto !important; margin: 0 !important; display: block; }
+.patsch9fs-field { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(180px, 2fr); gap: 12px; margin: 14px 0; align-items: start; }
+.patsch9fs-nutrient-grid, .patsch9fs-allergens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.patsch9fs-search { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; align-items: center; }
+.patsch9fs-search input, .patsch9fs-search select { flex: 1; min-width: 160px; }
+.patsch9fs-recipe-row { background: #f6f7f7; padding: 12px !important; margin: 12px 0; }
+.patsch9fs-recipe-row > label { margin-top: 10px !important; }
+.patsch9fs-review { padding: 16px; background: #f0f6fc; border-left: 4px solid #2271b1; }
+.patsch9fs-review label { line-height: 1.6; }
+.patsch9fs-error { color: #b32d2e; }
+#patsch9fs-message { margin: 12px 0; font-weight: 600; }
+#patsch9fs-source-preview button { margin: 12px 8px 0 0; }
+.patsch9fs-settings { max-width: 1000px; line-height: 1.6; }
+@media (max-width: 800px) { .patsch9fs-field { grid-template-columns: 1fr; } .patsch9fs-nutrient-grid, .patsch9fs-allergens { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

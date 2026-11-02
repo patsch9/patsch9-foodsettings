@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: P9 Food Settings – Lebensmittel
+ * Plugin Name: Patsch9 Food Settings – Lebensmittel
  * Description: Zutaten, Allergene, Nährwerte, Rezeptberechnung und öffentliche Lebensmitteldaten für WooCommerce.
  * Version: 2026.11.1
  * Author: Patrick Schmidt
@@ -9,7 +9,7 @@
  * Update URI: https://github.com/patsch9/patsch9-foodsettings
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: patsch9-productsettings
+ * Text Domain: patsch9-foodsettings
  * Requires at least: 6.7
  * Requires PHP: 8.1
  * Requires Plugins: woocommerce
@@ -17,9 +17,9 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-define( 'P9PS_VERSION', '2026.11.1' );
-define( 'P9PS_PATH', plugin_dir_path( __FILE__ ) );
-define( 'P9PS_URL', plugin_dir_url( __FILE__ ) );
+define( 'PATSCH9FS_VERSION', '2026.11.1' );
+define( 'PATSCH9FS_PATH', plugin_dir_path( __FILE__ ) );
+define( 'PATSCH9FS_URL', plugin_dir_url( __FILE__ ) );
 
 add_action( 'before_woocommerce_init', static function () {
 	if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
@@ -30,13 +30,13 @@ add_action( 'before_woocommerce_init', static function () {
 add_action( 'plugins_loaded', static function () {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		add_action( 'admin_notices', static function () {
-			echo '<div class="notice notice-warning"><p>' . esc_html__( 'P9 Food Settings benötigt WooCommerce.', 'patsch9-productsettings' ) . '</p></div>';
+			echo '<div class="notice notice-warning"><p>' . esc_html__( 'Patsch9 Food Settings benötigt WooCommerce.', 'patsch9-foodsettings' ) . '</p></div>';
 		} );
 		return;
 	}
 	foreach ( array( 'nutrition', 'nutriscore', 'recipe', 'sources', 'product-data', 'editor-draft', 'admin', 'frontend' ) as $module ) {
-		require_once P9PS_PATH . 'includes/class-' . $module . '.php';
+		require_once PATSCH9FS_PATH . 'includes/class-' . $module . '.php';
 	}
-	\P9PS\Admin::init();
-	\P9PS\Frontend::init();
+	\PATSCH9FS\Admin::init();
+	\PATSCH9FS\Frontend::init();
 } );

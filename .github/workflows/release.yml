@@ -50,7 +50,7 @@ jobs:
 
   checks:
     needs: validate
-    uses: ./.github/workflows/checks.yml # zizmor: ignore[self-repository] -- Portable same-commit reusable workflow syntax, matching the other P9 repositories.
+    uses: ./.github/workflows/checks.yml # zizmor: ignore[self-repository] -- Portable same-commit reusable workflow syntax, matching the other Patsch9 plugin repositories.
     with:
       release_only: true
       release_version: ${{ needs.validate.outputs.version }}
@@ -77,11 +77,11 @@ jobs:
           PRERELEASE: ${{ needs.checks.outputs.prerelease }}
         run: |
           set -euo pipefail
-          archive="patsch9-productsettings-${VERSION}.zip"
+          archive="patsch9-foodsettings-${VERSION}.zip"
           sha256sum -c "${archive}.sha256"
           args=(release create "$GITHUB_REF_NAME" "$archive" "${archive}.sha256"
             --repo "$GH_REPO" --verify-tag
-            --title "P9 Food Settings – Lebensmittel ${VERSION}" --generate-notes)
+            --title "Patsch9 Food Settings – Lebensmittel ${VERSION}" --generate-notes)
           if [[ "$PRERELEASE" == 'true' ]]; then
             args+=(--prerelease --latest=false)
           fi

@@ -48,7 +48,7 @@ jobs:
           coverage: none
           tools: none
       - name: PHP syntax
-        run: find includes tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l && php -l patsch9-productsettings.php
+        run: find includes tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l && php -l patsch9-foodsettings.php
       - name: Domain, reference and dataset tests
         run: php tests/run.php
 
@@ -116,8 +116,8 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           cd dist
-          sha256sum -c "patsch9-productsettings-${VERSION}.zip.sha256"
-          unzip -q "patsch9-productsettings-${VERSION}.zip" -d ../.release-build
+          sha256sum -c "patsch9-foodsettings-${VERSION}.zip.sha256"
+          unzip -q "patsch9-foodsettings-${VERSION}.zip" -d ../.release-build
       - name: Start disposable WordPress and WooCommerce
         if: ${{ !inputs.release_only }}
         run: |
@@ -127,15 +127,15 @@ jobs:
           echo "$PWD/node_modules/.bin" >> "$GITHUB_PATH"
           mkdir -p .release-build/results
           chmod 777 .release-build/results
-          jq -n --arg plugin "$PWD/.release-build/patsch9-productsettings" --arg tests "$PWD/tests" --arg results "$PWD/.release-build/results" \
-            '{core: null, testsEnvironment: false, mappings: {"wp-content/plugins/patsch9-productsettings": $plugin, "p9ps-tests": $tests, "p9ps-results": $results}}' > .wp-env.json
+          jq -n --arg plugin "$PWD/.release-build/patsch9-foodsettings" --arg tests "$PWD/tests" --arg results "$PWD/.release-build/results" \
+            '{core: null, testsEnvironment: false, mappings: {"wp-content/plugins/patsch9-foodsettings": $plugin, "patsch9fs-tests": $tests, "patsch9fs-results": $results}}' > .wp-env.json
           node_modules/.bin/wp-env start
           node_modules/.bin/wp-env run cli wp plugin install woocommerce --activate
           node_modules/.bin/wp-env run cli wp plugin install plugin-check --activate
-          node_modules/.bin/wp-env run cli wp plugin activate patsch9-productsettings
+          node_modules/.bin/wp-env run cli wp plugin activate patsch9-foodsettings
       - name: Integration and security regressions against the installed package
         if: ${{ !inputs.release_only }}
-        run: wp-env run cli env P9PS_RUN_INTEGRATION_TESTS=1 wp eval-file p9ps-tests/integration.php
+        run: wp-env run cli env PATSCH9FS_RUN_INTEGRATION_TESTS=1 wp eval-file patsch9fs-tests/integration.php
       - name: Strict WordPress Plugin Check on the installed package
         if: ${{ !inputs.release_only }}
         shell: bash
@@ -143,9 +143,9 @@ jobs:
           set +e
           # GitHub-only distribution retains Update URI and the requested German readme.
           # Ignore only these three directory policies; all technical checks remain strict.
-          wp-env run cli sh -c 'wp plugin check patsch9-productsettings --format=strict-json \
+          wp-env run cli sh -c 'wp plugin check patsch9-foodsettings --format=strict-json \
             --ignore-codes=plugin_updater_detected,readme_short_description_non_official_language,readme_description_non_official_language \
-            --require=./wp-content/plugins/plugin-check/cli.php > /var/www/html/p9ps-results/plugin-check.txt 2>&1'
+            --require=./wp-content/plugins/plugin-check/cli.php > /var/www/html/patsch9fs-results/plugin-check.txt 2>&1'
           status=$?
           set -e
           cat .release-build/results/plugin-check.txt

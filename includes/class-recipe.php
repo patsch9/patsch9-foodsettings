@@ -1,5 +1,5 @@
 <?php
-namespace P9PS;
+namespace PATSCH9FS;
 
 final class Recipe {
 	/** Each ingredient snapshot is per 100 g; final yield is the edible finished mass. */

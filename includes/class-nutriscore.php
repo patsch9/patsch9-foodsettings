@@ -1,5 +1,5 @@
 <?php
-namespace P9PS;
+namespace PATSCH9FS;
 
 /** Updated 2023 algorithm. Reference: Santé publique France workbook, 2024-04-04. */
 final class Nutriscore {

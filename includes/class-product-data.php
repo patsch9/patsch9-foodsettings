@@ -1,10 +1,10 @@
 <?php
-namespace P9PS;
+namespace PATSCH9FS;
 
 defined( 'ABSPATH' ) || exit;
 
 final class ProductData {
-	public const META = '_p9ps_food';
+	public const META = '_patsch9fs_food';
 	public const ALLERGEN_IDS = array( 'en:gluten', 'en:crustaceans', 'en:eggs', 'en:fish', 'en:peanuts', 'en:soybeans', 'en:milk', 'en:nuts', 'en:celery', 'en:mustard', 'en:sesame-seeds', 'en:sulphur-dioxide-and-sulphites', 'en:lupin', 'en:molluscs' );
 	public const TEXT_FIELDS = array( 'designation', 'net_quantity', 'drained_weight', 'operator', 'origin', 'storage', 'instructions', 'shelf_life', 'traces' );
 

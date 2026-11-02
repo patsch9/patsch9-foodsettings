@@ -29,9 +29,9 @@ def apply(root, version):
     )
     plugin = replace_once(
         plugin,
-        r"(define\(\s*'P9PS_VERSION'\s*,\s*')[^']+('\s*\)\s*;)",
+        r"(define\(\s*'PATSCH9FS_VERSION'\s*,\s*')[^']+('\s*\)\s*;)",
         lambda match: match.group(1) + version + match.group(2),
-        'P9PS_VERSION',
+        'PATSCH9FS_VERSION',
     )
     plugin_path.write_text(plugin, encoding='utf-8')
 

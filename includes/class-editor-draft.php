@@ -1,12 +1,12 @@
 <?php
-namespace P9PS;
+namespace PATSCH9FS;
 
 defined( 'ABSPATH' ) || exit;
 
 /** Private, temporary editor recovery. Never a source for public product data. */
 final class EditorDraft {
 	private static function key( $product ): string {
-		return 'p9ps_draft_' . get_current_user_id() . '_' . $product->get_id();
+		return 'patsch9fs_draft_' . get_current_user_id() . '_' . $product->get_id();
 	}
 	private static function allowed( $product ): bool {
 		return get_current_user_id() > 0 && current_user_can( 'edit_post', $product->get_id() ) && 'product' === get_post_type( $product->get_id() );
