@@ -13,12 +13,14 @@
 
     if (!$('#patsch9fs-withdrawal_ack').length) {
       const field = $('<div class="patsch9fs-field patsch9fs-withdrawal-field">');
-      const label = $('<label for="patsch9fs-withdrawal_ack">').text(PATSCH9FS_PRODUCT_OPTIONS.withdrawalLabel);
+      const descriptionId = 'patsch9fs-withdrawal_ack-description';
       const checkbox = $('<input type="checkbox" id="patsch9fs-withdrawal_ack" name="patsch9fs[withdrawal_ack]" value="1">')
-        .prop('checked', !!PATSCH9FS_PRODUCT_OPTIONS.withdrawalAck);
-      label.append(checkbox);
+        .prop('checked', !!PATSCH9FS_PRODUCT_OPTIONS.withdrawalAck)
+        .attr('aria-describedby', descriptionId);
+      const label = $('<label for="patsch9fs-withdrawal_ack">').append(checkbox, document.createTextNode(' ' + PATSCH9FS_PRODUCT_OPTIONS.withdrawalLabel));
       field.append(label);
-      $('<p class="description">').text(PATSCH9FS_PRODUCT_OPTIONS.withdrawalDescription).appendTo(field);
+      $('<p class="description">').attr('id', descriptionId).text(PATSCH9FS_PRODUCT_OPTIONS.withdrawalDescription).appendTo(field);
+      $('<input type="hidden" name="patsch9fs_withdrawal_present" value="1">').appendTo(field);
 
       const anchor = $('#patsch9fs-same_variations').closest('.patsch9fs-field');
       if (anchor.length) field.insertAfter(anchor);
