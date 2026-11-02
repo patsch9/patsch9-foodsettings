@@ -34,4 +34,4 @@ Diese Prüfungen ersetzen kein unabhängiges Audit, keine Theme-Abnahme und kein
 
 ## Sicherheitslücke melden
 
-Sensible Details über [GitHub „Report a vulnerability“](https://github.com/patsch9/patsch9-productsettings/security/advisories/new) melden, sofern private Meldungen für das Repository aktiviert sind. Andernfalls den Maintainer über die im GitHub-Profil angegebene Kontaktmöglichkeit ansprechen. Zugangsdaten, Kundendaten und vollständige private Rezepturen nicht in öffentlichen Issues veröffentlichen.
+Sensible Details über [GitHub „Report a vulnerability“](https://github.com/patsch9/patsch9-foodsettings/security/advisories/new) melden, sofern private Meldungen für das Repository aktiviert sind. Andernfalls den Maintainer über die im GitHub-Profil angegebene Kontaktmöglichkeit ansprechen. Zugangsdaten, Kundendaten und vollständige private Rezepturen nicht in öffentlichen Issues veröffentlichen.
