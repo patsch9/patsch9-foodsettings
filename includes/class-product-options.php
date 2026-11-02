@@ -47,10 +47,13 @@ final class ProductOptions {
 			return;
 		}
 		// The header checkbox is the canonical switch. Synchronize it into the structured payload before Admin::save() validates it.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// Nonce and capability are verified by self::authorized() immediately above.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_POST['patsch9fs'] ) || ! is_array( $_POST['patsch9fs'] ) ) {
 			$_POST['patsch9fs'] = array();
 		}
+		// Nonce and capability are verified by self::authorized() immediately above.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$food_enabled = isset( $_POST[ ProductData::FOOD_ENABLED_META ] ) && 'on' === sanitize_text_field( wp_unslash( $_POST[ ProductData::FOOD_ENABLED_META ] ) );
 		if ( $food_enabled ) {
 			$_POST['patsch9fs']['enabled'] = '1';
@@ -58,6 +61,8 @@ final class ProductOptions {
 			unset( $_POST['patsch9fs']['enabled'] );
 		}
 
+		// Nonce and capability are verified by self::authorized() immediately above.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$withdrawal_present = isset( $_POST['patsch9fs_withdrawal_present'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['patsch9fs_withdrawal_present'] ) );
 		// If the enhancement script did not run, do not silently erase an existing legal checkout setting.
 		if ( ! $withdrawal_present ) {
