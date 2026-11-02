@@ -57,6 +57,9 @@ Nein. Öffentlich erscheinen ausschließlich freigegebene Deklarationen und Quel
 == Changelog ==
 
 = 2026.11.1 =
+* Eingaben nach Validierungsfehlern im privaten Editor-Zwischenspeicher wiederherstellbar; Shopangaben bleiben unverändert.
+* Alkohol-Ausschluss ohne Verlust der Kategorieauswahl, UTF-8-Suche und Darstellung optionaler Angaben verbessert.
+* Widersprüchliche BLS-Nährwerte sind leichter erkennbar und bleiben manuell korrigierbar.
 * GitHub-Releases mit geprüften Installationspaketen, SHA-256-Prüfsummen und einheitlicher Versionierung.
 * Verbindliche WordPress-/WooCommerce-, Sicherheits- und Paketprüfungen vor jeder Veröffentlichung.
 * Passwortgeschützte Produktangaben geschützt; unbekannte Natriumwerte bleiben unbekannt.

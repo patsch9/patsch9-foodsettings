@@ -48,15 +48,26 @@
         input('Zutatenname', row.name, v => {row.name = v;});
         input('Einsatzmenge in Gramm', row.grams, v => {row.grams = v;});
         input('Unterzutaten / Hervorhebung (optional, HTML <strong>)', row.declaration, v => {row.declaration = v;}, true);
+        const warning = $('<p class="p9ps-error" role="status">').appendTo(box);
+        function consistencyWarning() {
+          const conflicts = [['saturates', 'fat'], ['sugars', 'carbs']].filter(function (pair) {
+            const child = row.nutrients[pair[0]], total = row.nutrients[pair[1]];
+            if (child == null || total == null || child === '' || total === '') return false;
+            return Number(String(child).replace(',', '.')) > Number(String(total).replace(',', '.')) + 0.000001;
+          });
+          warning.text(conflicts.length ? 'Widersprüchliche Zutatenwerte: ' + conflicts.map(pair => P9PS.labels[pair[0]] + ' über ' + P9PS.labels[pair[1]]).join('; ') + '. Bitte anhand belastbarer Herstellerwerte korrigieren oder eine andere Quelle wählen. Werte werden nicht automatisch gekappt.' : '').toggle(conflicts.length > 0);
+          return conflicts.length > 0;
+        }
         const grid = $('<div class="p9ps-nutrient-grid">').appendTo(box);
         keys.forEach(function (key) {
           const el = $('<input type="text" inputmode="decimal">').val(row.nutrients[key] == null ? '' : row.nutrients[key]);
-          el.on('input', function () {row.nutrients[key] = $(this).val(); sync(); dirty();});
+          el.on('input', function () {row.nutrients[key] = $(this).val(); consistencyWarning(); sync(); dirty();});
           $('<label>').text(P9PS.labels[key] + ' / 100 g').append(el).appendTo(grid);
         });
         if (row.source && row.source.provider) $('<p>').text('Quellsnapshot: ' + row.source.provider.toUpperCase() + ' ' + row.source.id).appendTo(box);
         $('<button type="button" class="button">').text('Zutat entfernen').on('click', function () {rows.splice(i, 1); sync(); drawRows(); dirty();}).appendTo(box);
         container.append(box);
+        if (consistencyWarning()) box.prop('open', true);
       });
       sync();
     }

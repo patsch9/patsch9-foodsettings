@@ -1,0 +1,41 @@
+/* Exercise the real admin script in a DOM; no network or WordPress needed. */
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const {JSDOM} = require('jsdom');
+const jquery = require('jquery');
+
+(async function () {
+  const keys = ['energy_kj', 'energy_kcal', 'fat', 'saturates', 'carbs', 'sugars', 'fibre', 'protein', 'salt'];
+  const nutrients = Object.fromEntries(keys.map(key => [key, 0]));
+  nutrients.fat = 5; nutrients.saturates = 6;
+  const row = {name: '<img src=x onerror=alert(1)>', declaration: '', grams: '120', nutrients, source: {provider: 'bls', id: 'TEST001'}};
+  const dom = new JSDOM('<form><div id="p9ps-food"><input id="p9ps-recipe-json"><input id="p9ps-sources-json" value="[]"><input id="p9ps-approve" type="checkbox" checked><div class="p9ps-review"><strong></strong></div><select id="p9ps-mode"><option value="manual">Manual</option><option value="recipe" selected>Recipe</option></select><div id="p9ps-recipe-rows"></div><button id="p9ps-add-manual" type="button">Add</button></div></form>', {runScripts: 'outside-only', url: 'https://shop.example.invalid/wp-admin/post.php'});
+  const {window} = dom;
+  const $ = jquery(window);
+  window.jQuery = $;
+  window.P9PS = {labels: Object.fromEntries(keys.map(key => [key, key])), url: '/admin-ajax.php', nonce: 'fixture', productId: 12};
+  $('#p9ps-recipe-json').val(JSON.stringify([row]));
+  window.eval(fs.readFileSync(path.join(__dirname, '..', 'assets', 'admin.js'), 'utf8'));
+  await new Promise(resolve => $(resolve));
+  const box = $('.p9ps-recipe-row').first();
+  assert.equal(box.prop('open'), true, 'Inconsistent source snapshot opens for correction.');
+  assert.match(box.find('.p9ps-error').text(), /saturates über fat/);
+  assert.equal(JSON.parse($('#p9ps-recipe-json').val())[0].nutrients.saturates, 6, 'Source values are never capped.');
+  assert.equal(box.find('img').length, 0, 'Ingredient names are text, not executable HTML.');
+  const inputs = box.find('.p9ps-nutrient-grid input');
+  assert.equal(inputs.length, 9, 'Every ingredient nutrient remains individually editable.');
+  inputs.eq(keys.indexOf('saturates')).val('4,5').trigger('input');
+  assert.equal(box.find('.p9ps-error').css('display'), 'none', 'Corrected decimal-comma input clears the conflict warning.');
+  assert.equal(JSON.parse($('#p9ps-recipe-json').val())[0].nutrients.saturates, '4,5', 'Edits reach the recipe submitted to the server.');
+  assert.equal($('#p9ps-approve').prop('checked'), false, 'Editing a recovered ingredient does not retain approval.');
+  inputs.eq(keys.indexOf('sugars')).val('2').trigger('input');
+  assert.match(box.find('.p9ps-error').text(), /sugars über carbs/, 'A new inconsistency becomes visible immediately.');
+  box.find('button').click();
+  assert.deepEqual(JSON.parse($('#p9ps-recipe-json').val()), [], 'Removing the ingredient updates submitted JSON.');
+  $('#p9ps-add-manual').click();
+  assert.equal($('.p9ps-recipe-row .p9ps-error').css('display'), 'none', 'Unknown values are not treated as contradictory zero values.');
+  window.close();
+  console.log('PASS: 11 real admin DOM regression assertions.');
+})().catch(error => { console.error(error); process.exitCode = 1; });

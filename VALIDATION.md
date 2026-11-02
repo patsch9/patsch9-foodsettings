@@ -1,5 +1,9 @@
 # Validierung
 
+## Gemini-Review – zusätzliche Korrekturen
+
+Stand: 02.11.2026, vor dem ersten Release von 2026.11.1. Abgleich und Entscheidungen stehen in [REVIEW-2026-11-02.md](REVIEW-2026-11-02.md). Lokal bestanden jetzt 14.491 Domänen-/Datenprüfungen, 60 WordPress-/WooCommerce-Integrationsprüfungen, 11 JavaScript-DOM-Assertions, 12 Paket-/Release-Tests und 15 Ergebnisparser-Fälle. Zusätzlich: sicherer privater Editor-Zwischenspeicher, erhaltene Kategorieauswahl bei Alkohol-Ausschluss, UTF-8-Suche, BLS-Konflikthinweise, echte Logo-Anhänge und keine leere Detail-Liste. JavaScript-DOM-Tests laufen verbindlich auch in der CI. Neue Testabhängigkeiten werden nicht ausgeliefert; npm-Audit weiterhin ohne hohe/kritische Befunde, sieben mittlere Meldungen im Testwerkzeug.
+
 ## 2026.11.1 – Release- und Sicherheitsabgleich
 
 Stand: 02.11.2026. Keine Installation oder Änderungen an einem produktiven Shop; kein Release-Tag erstellt.

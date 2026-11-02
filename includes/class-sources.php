@@ -34,6 +34,8 @@ final class Sources {
 		$warning = 'BLS-Durchschnittswerte. Zustand (roh/gegart) und konkrete Zutat abgleichen. BLS liefert hier keine verlässliche Allergen- oder Zutatenliste; diese selbst ergänzen.';
 		foreach ( array( 'saturates' => 'fat', 'sugars' => 'carbs' ) as $child => $parent ) {
 			if ( isset( $record['nutrients'][ $child ], $record['nutrients'][ $parent ] ) && $record['nutrients'][ $child ] > $record['nutrients'][ $parent ] + .000001 ) {
+				$labels = ProductData::labels();
+				$warning .= ' Betroffen: ' . $labels[ $child ] . ' (' . $record['nutrients'][ $child ] . ' g) über ' . $labels[ $parent ] . ' (' . $record['nutrients'][ $parent ] . ' g).';
 				$warning .= ' Dieser Quelldatensatz enthält widersprüchliche Teil-/Gesamtwerte. Vor Verwendung anhand belastbarer Herstellerwerte korrigieren oder andere Quelle wählen; unverändert ist keine Speicherung möglich.';
 			}
 		}

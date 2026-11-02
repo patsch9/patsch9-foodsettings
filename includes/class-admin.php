@@ -16,6 +16,7 @@ final class Admin {
 			add_submenu_page( 'woocommerce', 'Lebensmitteldaten', 'Lebensmitteldaten', 'manage_woocommerce', 'p9ps-food-settings', array( __CLASS__, 'settings' ) );
 		} );
 		add_action( 'admin_post_p9ps_settings', array( __CLASS__, 'save_settings' ) );
+		add_action( 'admin_post_p9ps_discard_draft', array( __CLASS__, 'discard_draft' ) );
 		add_action( 'wp_ajax_p9ps_food', array( __CLASS__, 'ajax' ) );
 	}
 	public static function assets( string $hook ): void {
@@ -54,11 +55,16 @@ final class Admin {
 		if ( ! $product_object ) {
 			return;
 		}
-		$d = ProductData::get( $product_object );
+		$draft = EditorDraft::get( $product_object );
+		$d = $draft ?? ProductData::get( $product_object );
 		echo '<div id="p9ps-food" class="panel woocommerce_options_panel hidden"><div class="p9ps-wrap">';
 		wp_nonce_field( 'p9ps_save_food', 'p9ps_nonce' );
 		echo '<input type="hidden" name="p9ps_present" value="1">';
 		echo '<h3>' . esc_html__( 'Lebensmittelinformationen', 'patsch9-productsettings' ) . '</h3>';
+		if ( null !== $draft ) {
+			$discard_url = add_query_arg( array( 'action' => 'p9ps_discard_draft', 'product_id' => $product_object->get_id(), '_wpnonce' => wp_create_nonce( 'p9ps_discard_draft_' . $product_object->get_id() ) ), admin_url( 'admin-post.php' ) );
+			echo '<div class="notice notice-warning inline"><p>Deine Eingaben nach dem fehlgeschlagenen Speichern wurden wiederhergestellt. Bitte korrigieren und erneut speichern. Diese Eingaben sind nur für dich zwischengespeichert und nicht freigegeben. <a href="' . esc_url( $discard_url ) . '">Eingaben verwerfen und gespeicherten Stand laden</a></p></div>';
+		}
 		echo '<p>Für den klassischen WooCommerce-Produkteditor. Grundpreise und weitere Shop-Pflichten weiterhin separat konfigurieren.</p>';
 		self::field( $d, 'enabled', 'Als Lebensmittel kennzeichnen', 'checkbox' );
 		self::field( $d, 'same_variations', 'Alle Varianten haben identische Zutaten, Nährwerte und Füllmengen (nur dann gemeinsame Daten verwenden)', 'checkbox' );
@@ -91,7 +97,7 @@ final class Admin {
 		self::field( $d, 'fruit', 'Anrechenbarer Obst-/Gemüse-/Hülsenfruchtanteil (%)', 'number' );
 		self::field( $d, 'sweeteners', 'Nicht nutritive Süßstoffe bei Getränken', 'select', array( '' => 'Noch nicht geprüft', 'no' => 'Nein', 'yes' => 'Ja' ) );
 		self::field( $d, 'show_score', 'Freigegebenes offizielles Nutri-Score-Logo anzeigen', 'checkbox' );
-		$score = ProductData::score( $d );
+		$score = null !== $draft ? array( 'grade' => null, 'reason' => 'Die wiederhergestellten Eingaben müssen zuerst korrigiert und gespeichert werden.' ) : ProductData::score( $d );
 		echo '<p><strong>Berechnung nach gespeichertem Stand: ' . esc_html( empty( $score['grade'] ) ? $score['reason'] : strtoupper( $score['grade'] ) . ' (Punkte: ' . ( $score['score'] ?? 'Wasser' ) . ')' ) . '</strong></p><p>Kein Rückschluss aus Produktnamen. Prozentanteil nach den offiziellen Regeln bestimmen; z. B. zählen Nüsse beim allgemeinen Algorithmus nicht als Obst. Reines Wasser und ausgeschlossene Produktgruppen bewusst einordnen. Die Anzeige setzt passende Nutzungsrechte und offizielle Grafiken in den Einstellungen voraus.</p></details>';
 		echo '<input type="hidden" id="p9ps-recipe-json" name="p9ps_recipe_json" value="' . esc_attr( wp_json_encode( $d['recipe'] ) ) . '"><input type="hidden" id="p9ps-sources-json" name="p9ps_sources_json" value="' . esc_attr( wp_json_encode( $d['sources'] ) ) . '">';
 		echo '<div class="p9ps-review"><p><strong>Status: ' . esc_html( ProductData::approved( $d ) ? 'Für die Shopanzeige freigegeben.' : 'Noch nicht für die Shopanzeige freigegeben.' ) . '</strong></p><label><input type="checkbox" id="p9ps-approve" name="p9ps_approve" value="1"> Ich habe die endgültigen Angaben, Zutaten, Allergene, Bezugsgröße und Quellen geprüft und gebe diese Version zur Anzeige frei.</label><p>Änderungen entziehen eine bestehende Freigabe. Bei unverändertem Speichern bleibt sie erhalten. Daten ohne Freigabe erscheinen nicht im Shop.</p></div>';
@@ -114,6 +120,7 @@ final class Admin {
 		if ( empty( $_POST['p9ps_present'] ) || ! isset( $_POST['p9ps_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['p9ps_nonce'] ) ), 'p9ps_save_food' ) || ! current_user_can( 'edit_post', $product->get_id() ) ) {
 			return;
 		}
+		$in = array();
 		try {
 			// Structured fields are validated together below; text sanitization here would destroy the recipe/HTML schema.
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -131,9 +138,21 @@ final class Admin {
 				\WC_Admin_Meta_Boxes::add_error( 'P9 Lebensmitteldaten gespeichert, aber nicht freigegeben. ' . implode( ' ', $errors ) );
 			}
 			$product->update_meta_data( ProductData::META, $d );
+			EditorDraft::forget( $product );
 		} catch ( \Throwable $e ) {
-			\WC_Admin_Meta_Boxes::add_error( 'P9 Lebensmitteldaten nicht geändert: ' . esc_html( $e->getMessage() ) );
+			$recovered = isset( $in['recipe'], $in['sources'] ) && EditorDraft::remember( $product, $in );
+			\WC_Admin_Meta_Boxes::add_error( 'P9 Lebensmitteldaten nicht geändert: ' . esc_html( $e->getMessage() ) . ( $recovered ? ' Deine Eingaben sind für bis zu einer Stunde im Reiter Lebensmittel wiederherstellbar. Der gespeicherte Shopstand bleibt erhalten.' : ' Die Eingaben konnten nicht zwischengespeichert werden; der gespeicherte Shopstand bleibt erhalten.' ) );
 		}
+	}
+	public static function discard_draft(): void {
+		$id = absint( $_GET['product_id'] ?? 0 );
+		check_admin_referer( 'p9ps_discard_draft_' . $id );
+		if ( ! current_user_can( 'edit_post', $id ) || 'product' !== get_post_type( $id ) ) {
+			wp_die( 'Keine Berechtigung.', '', array( 'response' => 403 ) );
+		}
+		EditorDraft::forget( wc_get_product( $id ) );
+		wp_safe_redirect( admin_url( 'post.php?post=' . $id . '&action=edit' ) );
+		exit;
 	}
 	public static function ajax(): void {
 		check_ajax_referer( 'p9ps_admin', 'nonce' );
@@ -145,7 +164,8 @@ final class Admin {
 			$task = sanitize_key( $_POST['task'] ?? '' );
 			if ( 'search' === $task ) {
 				$query = sanitize_text_field( wp_unslash( $_POST['query'] ?? '' ) );
-				if ( strlen( $query ) < 2 || strlen( $query ) > 80 ) {
+				$length = mb_strlen( $query, 'UTF-8' );
+				if ( $length < 2 || $length > 80 ) {
 					throw new \InvalidArgumentException( 'Suchbegriff muss 2–80 Zeichen lang sein.' );
 				}
 				$result = Sources::search_bls( $query );
@@ -192,7 +212,7 @@ final class Admin {
 		}
 		foreach ( range( 'a', 'e' ) as $grade ) {
 			$id = absint( $_POST[ 'logo_' . $grade ] ?? 0 );
-			if ( ! in_array( get_post_mime_type( $id ), array( 'image/png', 'image/jpeg', 'image/webp' ), true ) ) {
+			if ( 'attachment' !== get_post_type( $id ) || ! in_array( get_post_mime_type( $id ), array( 'image/png', 'image/jpeg', 'image/webp' ), true ) ) {
 				$id = 0;
 			}
 			update_option( 'p9ps_logo_' . $grade, $id, false );

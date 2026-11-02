@@ -90,7 +90,13 @@ check( ! ProductData::approved( $d ), 'Change invalidates review hash.' );
 check( count( ProductData::publication_errors( $d, true ) ) === 1, 'Variable product requires explicit shared composition.' );
 $incomplete = $d; $incomplete['nutrients']['salt'] = null;
 check( count( ProductData::publication_errors( $incomplete, false ) ) === 1, 'Incomplete table cannot be approved.' );
-check( ProductData::sanitize( array( 'alcohol' => 3, 'category' => 'beverage' ) )['category'] === 'excluded', 'Alcohol >1.2 excludes score.' );
+$alcoholic = ProductData::sanitize( array( 'alcohol' => 3, 'category' => 'beverage', 'fruit' => 0, 'sweeteners' => 'no', 'nutrients' => $zero ) );
+check( 'beverage' === $alcoholic['category'], 'Alcohol exclusion must not overwrite category selection.' );
+check( null === ProductData::score( $alcoholic )['grade'], 'Alcohol >1.2 excludes score at the product scoring boundary.' );
+$alcoholic['alcohol'] = .5;
+check( 'b' === ProductData::score( $alcoholic )['grade'], 'Reducing alcohol restores the selected beverage calculation.' );
+$alcoholic['alcohol'] = 1.2;
+check( 'b' === ProductData::score( $alcoholic )['grade'], 'Alcohol exclusion starts above 1.2 percent.' );
 check( ProductData::source( array( 'provider' => 'off', 'id' => 'https://evil.test' ) ) === array(), 'Arbitrary source URLs rejected.' );
 check( ProductData::source( array( 'provider' => 'bls', 'id' => 'P9B4000' ) )['id'] === 'P9B4000', 'Alphanumeric BLS codes supported.' );
 
@@ -118,11 +124,19 @@ $manifest = json_decode( file_get_contents( P9PS_PATH . 'data/bls/manifest.json'
 $index = json_decode( file_get_contents( P9PS_PATH . 'data/bls/index.json' ), true );
 check( count( $index ) === 7140 && $manifest['records'] === 7140, 'All BLS records bundled.' );
 $nulls = 0;
+$checked_bls_conflict = false;
 foreach ( glob( P9PS_PATH . 'data/bls/?.json' ) as $file ) {
     foreach ( json_decode( file_get_contents( $file ), true ) as $id => $record ) {
         check( isset( $index[$id] ), 'BLS index/data consistency.' );
         check( count( $record['nutrients'] ) === 9, 'BLS nine-nutrient schema.' );
         $nulls += count( array_filter( $record['nutrients'], static fn( $v ) => null === $v ) );
+        if ( ! $checked_bls_conflict && isset( $record['nutrients']['fat'], $record['nutrients']['saturates'] ) && $record['nutrients']['saturates'] > $record['nutrients']['fat'] + .000001 ) {
+            $source = Sources::bls( $id );
+            check( $source['nutrients'] === $record['nutrients'], 'Contradictory BLS source values are never silently capped.' );
+            check( str_contains( $source['warning'], 'Betroffen:' ) && str_contains( $source['warning'], ProductData::labels()['saturates'] ), 'BLS warning identifies the conflicting nutrient fields.' );
+            throws( static fn() => ProductData::sanitize( array( 'mode' => 'recipe', 'yield' => 100, 'recipe' => array( array( 'name' => $record['name'], 'grams' => 100, 'nutrients' => $record['nutrients'] ) ) ) ), 'Inconsistent ingredient snapshots still fail server validation.' );
+            $checked_bls_conflict = true;
+        }
     }
 }
 check( $nulls === $manifest['unknown_nutrient_values'], 'Unknown BLS values preserved.' );
