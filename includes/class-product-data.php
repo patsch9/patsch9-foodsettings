@@ -5,6 +5,8 @@ defined( 'ABSPATH' ) || exit;
 
 final class ProductData {
 	public const META = '_patsch9fs_food';
+	public const FOOD_ENABLED_META = '_patsch9fs_food_enabled';
+	public const WITHDRAWAL_META = '_patsch9fs_withdrawal_ack';
 	public const ALLERGEN_IDS = array( 'en:gluten', 'en:crustaceans', 'en:eggs', 'en:fish', 'en:peanuts', 'en:soybeans', 'en:milk', 'en:nuts', 'en:celery', 'en:mustard', 'en:sesame-seeds', 'en:sulphur-dioxide-and-sulphites', 'en:lupin', 'en:molluscs' );
 	public const TEXT_FIELDS = array( 'designation', 'net_quantity', 'drained_weight', 'operator', 'origin', 'storage', 'instructions', 'shelf_life', 'traces', 'ingredient_notes' );
 
@@ -20,6 +22,7 @@ final class ProductData {
 			'ingredients' => '', 'allergens' => array(), 'portion' => null, 'alcohol' => null,
 			'category' => 'excluded', 'fruit' => null, 'sweeteners' => '', 'show_score' => false,
 			'recipe' => array(), 'yield' => null, 'sources' => array(), 'same_variations' => false,
+			'withdrawal_ack' => false,
 			'review_hash' => '', 'reviewed_at' => '', 'reviewed_by' => 0,
 		) );
 	}
@@ -43,7 +46,7 @@ final class ProductData {
 		foreach ( self::TEXT_FIELDS as $key ) {
 			$d[ $key ] = sanitize_textarea_field( $in[ $key ] ?? '' );
 		}
-		foreach ( array( 'enabled', 'show_score', 'same_variations' ) as $key ) {
+		foreach ( array( 'enabled', 'show_score', 'same_variations', 'withdrawal_ack' ) as $key ) {
 			$d[ $key ] = ! empty( $in[ $key ] );
 		}
 		$d['basis'] = 'ml' === ( $in['basis'] ?? '' ) ? 'ml' : 'g';
@@ -102,7 +105,7 @@ final class ProductData {
 		return $d;
 	}
 	public static function fingerprint( array $d ): string {
-		unset( $d['review_hash'], $d['reviewed_at'], $d['reviewed_by'] );
+		unset( $d['review_hash'], $d['reviewed_at'], $d['reviewed_by'], $d['withdrawal_ack'] );
 		// Empty optional additions must preserve hashes issued before the field existed.
 		if ( '' === ( $d['ingredient_notes'] ?? '' ) ) {
 			unset( $d['ingredient_notes'] );

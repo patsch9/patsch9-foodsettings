@@ -34,9 +34,11 @@ add_action( 'plugins_loaded', static function () {
 		} );
 		return;
 	}
-	foreach ( array( 'nutrition', 'nutriscore', 'recipe', 'sources', 'product-data', 'editor-draft', 'admin', 'frontend' ) as $module ) {
+	foreach ( array( 'nutrition', 'nutriscore', 'recipe', 'sources', 'product-data', 'editor-draft', 'admin', 'frontend', 'product-options', 'checkout' ) as $module ) {
 		require_once PATSCH9FS_PATH . 'includes/class-' . $module . '.php';
 	}
 	\PATSCH9FS\Admin::init();
 	\PATSCH9FS\Frontend::init();
+	\PATSCH9FS\ProductOptions::init();
+	\PATSCH9FS\Checkout::init();
 } );

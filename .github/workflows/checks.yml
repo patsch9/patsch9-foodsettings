@@ -53,6 +53,7 @@ jobs:
         run: |
           php tests/run.php
           php tests/test-ingredient-notes.php
+          php tests/test-withdrawal-settings.php
 
   package:
     runs-on: ubuntu-latest
@@ -99,7 +100,7 @@ jobs:
           python3 tests/test-release.py
           python3 tests/test-plugin-check.py
       - name: JavaScript syntax
-        run: node --check assets/admin.js
+        run: find assets -maxdepth 1 -type f -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: Build installable package and checksum
         shell: bash
         env:
@@ -126,6 +127,7 @@ jobs:
           npm ci --ignore-scripts --no-fund --prefer-offline
           npm audit --audit-level=high
           node tests/test-admin.cjs
+          node tests/test-product-options.cjs
           echo "$PWD/node_modules/.bin" >> "$GITHUB_PATH"
           mkdir -p .release-build/results
           chmod 777 .release-build/results
@@ -137,7 +139,7 @@ jobs:
           node_modules/.bin/wp-env run cli wp plugin activate patsch9-foodsettings
       - name: Integration and security regressions against the installed package
         if: ${{ !inputs.release_only }}
-        run: wp-env run cli env PATSCH9FS_RUN_INTEGRATION_TESTS=1 wp eval-file patsch9fs-tests/integration.php
+        run: node_modules/.bin/wp-env run cli env PATSCH9FS_RUN_INTEGRATION_TESTS=1 wp eval-file patsch9fs-tests/integration.php
       - name: Strict WordPress Plugin Check on the installed package
         if: ${{ !inputs.release_only }}
         shell: bash
@@ -145,7 +147,7 @@ jobs:
           set +e
           # GitHub-only distribution retains Update URI and the requested German readme.
           # Ignore only these three directory policies; all technical checks remain strict.
-          wp-env run cli sh -c 'wp plugin check patsch9-foodsettings --format=strict-json \
+          node_modules/.bin/wp-env run cli sh -c 'wp plugin check patsch9-foodsettings --format=strict-json \
             --ignore-codes=plugin_updater_detected,readme_short_description_non_official_language,readme_description_non_official_language \
             --require=./wp-content/plugins/plugin-check/cli.php > /var/www/html/patsch9fs-results/plugin-check.txt 2>&1'
           status=$?
@@ -154,7 +156,7 @@ jobs:
           python3 tests/check-plugin-check.py .release-build/results/plugin-check.txt "$status"
       - name: Stop disposable environment
         if: ${{ always() && !inputs.release_only }}
-        run: wp-env destroy --force
+        run: node_modules/.bin/wp-env destroy --force
 
       - name: Store release assets
         if: ${{ inputs.release_only }}
@@ -166,4 +168,3 @@ jobs:
             dist/*.zip.sha256
           if-no-files-found: error
           retention-days: 1
-
