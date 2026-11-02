@@ -99,7 +99,16 @@ jobs:
       - name: JavaScript syntax
         run: node --check assets/admin.js
       - name: Build installable package and checksum
-        run: python3 tools/build_zip.py
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$RELEASE_VERSION" ]]; then
+            python3 tools/build_zip.py --release-version "$RELEASE_VERSION"
+          else
+            python3 tools/build_zip.py
+          fi
 
       - name: Verify and extract the actual installable package
         if: ${{ !inputs.release_only }}
