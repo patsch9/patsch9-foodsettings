@@ -35,27 +35,24 @@ def validate(root, tag=None):
     result = parse_release_version(version)
     if version != constant:
         raise ValueError('Plugin header and P9PS_VERSION differ.')
+
     if tag is not None:
         parse_release_version(tag)
         if tag != version:
             raise ValueError('Release tag must exactly match the generated plugin version.')
+        if stable != version:
+            raise ValueError('Generated release package must use the release tag as Stable tag.')
+    else:
+        if not STABLE_PATTERN.fullmatch(stable):
+            raise ValueError('Source Stable tag must be a stable YYYY.MM.N version.')
+        if not result['prerelease'] and stable != version:
+            raise ValueError('Stable tag and stable plugin version differ.')
+        if result['prerelease']:
+            stable_tuple = tuple(map(int, stable.split('.')))
+            base_tuple = tuple(map(int, version.split('-', 1)[0].split('.')))
+            if stable_tuple >= base_tuple:
+                raise ValueError('Source prereleases must retain an earlier stable tag.')
 
-    if not STABLE_PATTERN.fullmatch(stable):
-        raise ValueError('Stable tag must be a stable YYYY.MM.N version.')
-
-    prerelease = result['prerelease']
-    if not prerelease and stable != version:
-        raise ValueError('Stable tag and stable plugin version differ.')
-    if prerelease:
-        stable_tuple = tuple(map(int, stable.split('.')))
-        base_tuple = tuple(map(int, version.split('-', 1)[0].split('.')))
-        if stable_tuple >= base_tuple:
-            raise ValueError('Prereleases must retain an earlier stable tag.')
-
-    # Source branches keep explicit changelog metadata. During a tag build the
-    # release version is injected into a temporary working tree, so the tag is
-    # authoritative and changelog headings are not used as version inputs.
-    if tag is None:
         changelog = (root / 'CHANGELOG.md').read_text(encoding='utf-8')
         if not re.search(rf'^##\s+{re.escape(version)}(?:\s|$)', changelog, re.MULTILINE):
             raise ValueError('CHANGELOG.md has no entry for the current source version.')
