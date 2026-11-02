@@ -4,7 +4,7 @@ import argparse
 import re
 from pathlib import Path
 
-from release_metadata import SLUG, STABLE_PATTERN, parse_release_version
+from release_metadata import SLUG, parse_release_version
 
 
 def replace_once(text, pattern, replacement, label, flags=0):
@@ -36,27 +36,14 @@ def apply(root, version):
     plugin_path.write_text(plugin, encoding='utf-8')
 
     readme = readme_path.read_text(encoding='utf-8')
-    stable_match = re.search(r'^Stable tag:\s*([^\s]+)\s*$', readme, re.MULTILINE)
-    if not stable_match:
-        raise ValueError('Could not read Stable tag.')
-
-    if result['prerelease']:
-        stable = stable_match.group(1)
-        if not STABLE_PATTERN.fullmatch(stable):
-            raise ValueError('Prerelease requires a valid previous Stable tag.')
-        stable_tuple = tuple(map(int, stable.split('.')))
-        base_tuple = tuple(map(int, version.split('-', 1)[0].split('.')))
-        if stable_tuple >= base_tuple:
-            raise ValueError('Prerelease Stable tag must refer to an earlier stable release.')
-    else:
-        readme = replace_once(
-            readme,
-            r'(^Stable tag:\s*)[^\s]+',
-            lambda match: match.group(1) + version,
-            'Stable tag',
-            re.MULTILINE,
-        )
-        readme_path.write_text(readme, encoding='utf-8')
+    readme = replace_once(
+        readme,
+        r'(^Stable tag:\s*)[^\s]+',
+        lambda match: match.group(1) + version,
+        'Stable tag',
+        re.MULTILINE,
+    )
+    readme_path.write_text(readme, encoding='utf-8')
 
     return result
 
