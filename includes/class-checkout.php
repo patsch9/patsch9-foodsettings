@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 final class Checkout {
 	private const BLOCK_FIELD_ID = 'patsch9-foodsettings/withdrawal-ack';
 	private const CLASSIC_FIELD_ID = 'patsch9fs_withdrawal_ack';
-	private const CACHE_KEY = 'patsch9fs_withdrawal_product_ids_v1';
+	private const INDEX_OPTION = 'patsch9fs_withdrawal_product_ids';
 
 	public static function init(): void {
 		add_action( 'woocommerce_init', array( __CLASS__, 'register_block_field' ), 20 );
@@ -16,8 +16,17 @@ final class Checkout {
 		add_action( 'woocommerce_store_api_checkout_update_order_meta', array( __CLASS__, 'save_block_acknowledgement' ), 50 );
 	}
 
-	public static function invalidate_product_cache(): void {
-		delete_transient( self::CACHE_KEY );
+	public static function set_product_requirement( int $product_id, bool $required ): void {
+		$ids = get_option( self::INDEX_OPTION, array() );
+		$ids = is_array( $ids ) ? array_values( array_unique( array_filter( array_map( 'absint', $ids ) ) ) ) : array();
+		if ( $required ) {
+			$ids[] = absint( $product_id );
+		} else {
+			$ids = array_values( array_diff( $ids, array( absint( $product_id ) ) ) );
+		}
+		$ids = array_values( array_unique( array_filter( $ids ) ) );
+		sort( $ids, SORT_NUMERIC );
+		update_option( self::INDEX_OPTION, $ids, false );
 	}
 
 	private static function acknowledgement_label(): string {
@@ -86,37 +95,32 @@ final class Checkout {
 	}
 
 	private static function indexed_product_ids(): array {
-		$cached = get_transient( self::CACHE_KEY );
-		if ( is_array( $cached ) ) {
-			return array_values( array_map( 'absint', $cached ) );
-		}
-
-		$parents = wc_get_products(
-			array(
-				'limit'      => -1,
-				'return'     => 'ids',
-				'status'     => 'publish',
-				'meta_key'   => ProductData::WITHDRAWAL_META,
-				'meta_value' => 'yes',
-			)
-		);
+		$stored = get_option( self::INDEX_OPTION, array() );
+		$parents = is_array( $stored ) ? array_values( array_unique( array_filter( array_map( 'absint', $stored ) ) ) ) : array();
+		$valid_parents = array();
 		$ids = array();
+
 		foreach ( $parents as $id ) {
-			$id = absint( $id );
-			if ( ! $id ) {
+			$product = wc_get_product( $id );
+			if ( ! $product || 'publish' !== $product->get_status() || ! self::product_requires_acknowledgement( $product ) ) {
 				continue;
 			}
+			$valid_parents[] = $id;
 			$ids[] = $id;
-			$product = wc_get_product( $id );
-			if ( $product && $product->is_type( 'variable' ) ) {
+			if ( $product->is_type( 'variable' ) ) {
 				foreach ( $product->get_children() as $child_id ) {
 					$ids[] = absint( $child_id );
 				}
 			}
 		}
-		$ids = array_values( array_unique( array_filter( $ids ) ) );
-		set_transient( self::CACHE_KEY, $ids, 12 * HOUR_IN_SECONDS );
-		return $ids;
+
+		sort( $valid_parents, SORT_NUMERIC );
+		$normalized_parents = $parents;
+		sort( $normalized_parents, SORT_NUMERIC );
+		if ( $valid_parents !== $normalized_parents ) {
+			update_option( self::INDEX_OPTION, $valid_parents, false );
+		}
+		return array_values( array_unique( array_filter( $ids ) ) );
 	}
 
 	public static function register_block_field(): void {
@@ -173,6 +177,8 @@ final class Checkout {
 		if ( ! self::cart_requires_acknowledgement() ) {
 			return;
 		}
+		// WooCommerce validates the checkout request nonce before processing checkout fields.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$value = isset( $_POST[ self::CLASSIC_FIELD_ID ] ) ? '1' : '';
 		woocommerce_form_field(
 			self::CLASSIC_FIELD_ID,
@@ -187,6 +193,8 @@ final class Checkout {
 	}
 
 	public static function validate_classic_field(): void {
+		// WooCommerce validates the checkout request nonce before this validation hook runs.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( self::cart_requires_acknowledgement() && empty( $_POST[ self::CLASSIC_FIELD_ID ] ) ) {
 			wc_add_notice( __( 'Bitte bestätige den Hinweis zum Widerrufsrecht für die individuell angefertigten Lebensmittel.', 'patsch9-foodsettings' ), 'error' );
 		}
@@ -202,6 +210,8 @@ final class Checkout {
 
 	public static function save_classic_acknowledgement( $order, array $data ): void {
 		unset( $data );
+		// WooCommerce validates the checkout request nonce before creating the order.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( self::cart_requires_acknowledgement() && ! empty( $_POST[ self::CLASSIC_FIELD_ID ] ) ) {
 			self::record_acknowledgement( $order, 'classic', self::cart_acknowledgement_product_ids() );
 		}
