@@ -6,7 +6,7 @@ import os
 import re
 from pathlib import Path
 
-SLUG = 'patsch9-productsettings'
+SLUG = 'patsch9-foodsettings'
 VERSION_PATTERN = re.compile(r'\d{4}\.(0[1-9]|1[0-2])\.([1-9]\d*)(?:-(alpha|beta)([1-9]\d*))?')
 STABLE_PATTERN = re.compile(r'\d{4}\.(0[1-9]|1[0-2])\.([1-9]\d*)')
 
