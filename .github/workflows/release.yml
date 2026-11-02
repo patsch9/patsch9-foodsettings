@@ -81,7 +81,7 @@ jobs:
           sha256sum -c "${archive}.sha256"
           args=(release create "$GITHUB_REF_NAME" "$archive" "${archive}.sha256"
             --repo "$GH_REPO" --verify-tag
-            --title "P9 Product Settings – Lebensmittel ${VERSION}" --generate-notes)
+            --title "P9 Food Settings – Lebensmittel ${VERSION}" --generate-notes)
           if [[ "$PRERELEASE" == 'true' ]]; then
             args+=(--prerelease --latest=false)
           fi
