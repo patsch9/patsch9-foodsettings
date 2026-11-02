@@ -40,6 +40,8 @@ jobs:
 
           paths = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
           for raw in filter(None, paths):
+              if raw.startswith('.github/workflows/'):
+                  continue
               path = Path(raw)
               try:
                   text = path.read_text(encoding='utf-8')
@@ -52,14 +54,14 @@ jobs:
                   path.write_text(updated, encoding='utf-8')
           PY
 
-          if git grep -n -E 'P9PS|p9ps|patsch9-productsettings|P9 Food Settings|P9 Product Settings|Lebensmittel \(P9\)|P9 Lebensmitteldaten' -- . ':!data/bls/*'; then
-            echo '::error::Obsolete Food Settings identifiers remain.'
+          if git grep -n -E 'P9PS|p9ps|patsch9-productsettings|P9 Food Settings|P9 Product Settings|Lebensmittel \(P9\)|P9 Lebensmitteldaten' -- . ':!data/bls/*' ':!.github/workflows/*'; then
+            echo '::error::Obsolete Food Settings identifiers remain outside workflows.'
             exit 1
           fi
 
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
+          git add -A ':!.github/workflows/*'
           if git diff --cached --quiet; then
             echo 'Nothing to normalize.'
             exit 0
