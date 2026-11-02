@@ -1,10 +1,10 @@
-# P9 Food Settings – Lebensmittel
+# Patsch9 Food Settings – Lebensmittel
 
 Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährwertdaten und eigene Rezepturen. **Version 2026.11.1 ist für den ersten GitHub-Release vorbereitet.** WooCommerce wird benötigt, Germanized/Germanized Pro nicht. Es wird kein Code aus Germanized Pro übernommen und keine Lizenzprüfung umgangen.
 
 ## Funktionen
 
-- Produktdaten-Reiter **Lebensmittel (P9)** im klassischen Produkteditor.
+- Produktdaten-Reiter **Lebensmittel (Patsch9)** im klassischen Produkteditor.
 - Zutatenliste mit sicherer HTML-Hervorhebung, Übersicht der 14 Allergenklassen, getrennte Spurenhinweise.
 - Nährwerttabelle je 100 g / 100 ml, optional zusätzlich je Portion, mit kJ und kcal sowie Fett, gesättigten Fettsäuren, Kohlenhydraten, Zucker, Eiweiß, Salz und optional Ballaststoffen.
 - Bezeichnung des Lebensmittels, Nettofüllmenge, Abtropfgewicht, Lebensmittelunternehmer/Anschrift, Herkunft, Lagerung, Zubereitung, Haltbarkeitshinweis und Alkoholgehalt.
@@ -19,10 +19,10 @@ Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährw
 
 ## Installation
 
-1. Das installierbare ZIP unter [GitHub-Releases](https://github.com/patsch9/patsch9-foodsettings/releases) herunterladen, sobald ein Release erstellt wurde, z. B. `patsch9-productsettings-2026.11.1.zip`. Vorab steht dasselbe Paket als `release-assets` im jeweiligen GitHub-Actions-Lauf bereit. Die zugehörige `.zip.sha256` erlaubt die Integritätsprüfung mit `sha256sum -c DATEI.zip.sha256`. Alternativ lokal `python3 tools/build_zip.py` ausführen.
-2. In WordPress unter **Plugins → Neues Plugin → Plugin hochladen** installieren und aktivieren. Den Ordnernamen `patsch9-productsettings` beibehalten. Ein ungeändert heruntergeladenes GitHub-Quellarchiv hat einen anderen Ordnernamen und ist nicht das empfohlene Updatepaket.
+1. Das installierbare ZIP unter [GitHub-Releases](https://github.com/patsch9/patsch9-foodsettings/releases) herunterladen, sobald ein Release erstellt wurde, z. B. `patsch9-foodsettings-2026.11.1.zip`. Vorab steht dasselbe Paket als `release-assets` im jeweiligen GitHub-Actions-Lauf bereit. Die zugehörige `.zip.sha256` erlaubt die Integritätsprüfung mit `sha256sum -c DATEI.zip.sha256`. Alternativ lokal `python3 tools/build_zip.py` ausführen.
+2. In WordPress unter **Plugins → Neues Plugin → Plugin hochladen** installieren und aktivieren. Der Paketordner heißt `patsch9-foodsettings`. Ein ungeändert heruntergeladenes GitHub-Quellarchiv hat einen anderen Ordnernamen und ist nicht das empfohlene Updatepaket.
 3. Produkt im **klassischen WooCommerce-Produkteditor** öffnen, ggf. zuerst als Entwurf speichern.
-4. Produktdaten → Lebensmittel (P9) → Lebensmittel aktivieren und Angaben hinterlegen.
+4. Produktdaten → Lebensmittel (Patsch9) → Lebensmittel aktivieren und Angaben hinterlegen.
 5. Endgültige Angaben kontrollieren, Prüffreigabe anklicken und speichern. Die Freigabe ist eine interne Arbeitsfunktion; sie ersetzt keine fachliche oder rechtliche Prüfung.
 6. Ausgabe im verwendeten Theme überprüfen. Bei Block-Vorlagen ohne den klassischen Produkt-Tab den Shortcode-Block ergänzen.
 
@@ -98,7 +98,7 @@ python3 tests/test-release.py
 python3 tests/test-plugin-check.py
 ```
 
-Integration ausschließlich in einer **separaten Wegwerf-Testinstallation** mit WooCommerce und WP-CLI: `P9PS_RUN_INTEGRATION_TESTS=1 wp eval-file tests/integration.php`. Dieser Test legt Produkte und einen Testbenutzer an und verändert die P9-Einstellungen. Nicht im Live-Shop ausführen.
+Integration ausschließlich in einer **separaten Wegwerf-Testinstallation** mit WooCommerce und WP-CLI: `P9PS_RUN_INTEGRATION_TESTS=1 wp eval-file tests/integration.php`. Dieser Test legt Produkte und einen Testbenutzer an und verändert die Patsch9-Einstellungen. Nicht im Live-Shop ausführen.
 
 Der Workflow `Plugin checks` prüft PHP 8.1/8.3/8.4, Domänen-/Referenz-/Datentests, JavaScript, Release-Metadaten und Paketgrenzen. Anschließend wird das erzeugte ZIP in einer frischen WordPress-/WooCommerce-Installation mit echter Datenbank installiert. Die Integrations- und Sicherheitsregressionen sowie der strenge WordPress Plugin Check laufen auf diesem Paket. Technische Fehler, Warnungen und unvollständige Checker-Ausgabe blockieren die Freigabe. Drei reine Verzeichnisrichtlinien werden wegen der GitHub-Verteilung und der deutschen Readme gezielt ausgenommen; Details und verbleibende Grenzen stehen in [SECURITY.md](SECURITY.md) und [VALIDATION.md](VALIDATION.md). Die festgeschriebenen Testabhängigkeiten werden zusätzlich mit `npm audit --audit-level=high` geprüft.
 
