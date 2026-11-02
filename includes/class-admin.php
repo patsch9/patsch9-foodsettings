@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 final class Admin {
 	public static function init(): void {
 		add_filter( 'woocommerce_product_data_tabs', static function ( $tabs ) {
-			$tabs['p9ps_food'] = array( 'label' => __( 'Lebensmittel (P9)', 'patsch9-productsettings' ), 'target' => 'p9ps-food', 'priority' => 75 );
+			$tabs['p9ps_food'] = array( 'label' => __( 'Lebensmittel (Patsch9)', 'patsch9-foodsettings' ), 'target' => 'p9ps-food', 'priority' => 75 );
 			return $tabs;
 		} );
 		add_action( 'woocommerce_product_data_panels', array( __CLASS__, 'panel' ) );
@@ -60,7 +60,7 @@ final class Admin {
 		echo '<div id="p9ps-food" class="panel woocommerce_options_panel hidden"><div class="p9ps-wrap">';
 		wp_nonce_field( 'p9ps_save_food', 'p9ps_nonce' );
 		echo '<input type="hidden" name="p9ps_present" value="1">';
-		echo '<h3>' . esc_html__( 'Lebensmittelinformationen', 'patsch9-productsettings' ) . '</h3>';
+		echo '<h3>' . esc_html__( 'Lebensmittelinformationen', 'patsch9-foodsettings' ) . '</h3>';
 		if ( null !== $draft ) {
 			$discard_url = add_query_arg( array( 'action' => 'p9ps_discard_draft', 'product_id' => $product_object->get_id(), '_wpnonce' => wp_create_nonce( 'p9ps_discard_draft_' . $product_object->get_id() ) ), admin_url( 'admin-post.php' ) );
 			echo '<div class="notice notice-warning inline"><p>Deine Eingaben nach dem fehlgeschlagenen Speichern wurden wiederhergestellt. Bitte korrigieren und erneut speichern. Diese Eingaben sind nur für dich zwischengespeichert und nicht freigegeben. <a href="' . esc_url( $discard_url ) . '">Eingaben verwerfen und gespeicherten Stand laden</a></p></div>';
@@ -135,13 +135,13 @@ final class Admin {
 				$d['reviewed_at'] = gmdate( 'c' );
 				$d['reviewed_by'] = get_current_user_id();
 			} elseif ( $d['enabled'] ) {
-				\WC_Admin_Meta_Boxes::add_error( 'P9 Lebensmitteldaten gespeichert, aber nicht freigegeben. ' . implode( ' ', $errors ) );
+				\WC_Admin_Meta_Boxes::add_error( 'Patsch9 Lebensmitteldaten gespeichert, aber nicht freigegeben. ' . implode( ' ', $errors ) );
 			}
 			$product->update_meta_data( ProductData::META, $d );
 			EditorDraft::forget( $product );
 		} catch ( \Throwable $e ) {
 			$recovered = isset( $in['recipe'], $in['sources'] ) && EditorDraft::remember( $product, $in );
-			\WC_Admin_Meta_Boxes::add_error( 'P9 Lebensmitteldaten nicht geändert: ' . esc_html( $e->getMessage() ) . ( $recovered ? ' Deine Eingaben sind für bis zu einer Stunde im Reiter Lebensmittel wiederherstellbar. Der gespeicherte Shopstand bleibt erhalten.' : ' Die Eingaben konnten nicht zwischengespeichert werden; der gespeicherte Shopstand bleibt erhalten.' ) );
+			\WC_Admin_Meta_Boxes::add_error( 'Patsch9 Lebensmitteldaten nicht geändert: ' . esc_html( $e->getMessage() ) . ( $recovered ? ' Deine Eingaben sind für bis zu einer Stunde im Reiter Lebensmittel wiederherstellbar. Der gespeicherte Shopstand bleibt erhalten.' : ' Die Eingaben konnten nicht zwischengespeichert werden; der gespeicherte Shopstand bleibt erhalten.' ) );
 		}
 	}
 	public static function discard_draft(): void {
@@ -159,6 +159,7 @@ final class Admin {
 		$product_id = absint( $_POST['product_id'] ?? 0 );
 		if ( ! current_user_can( 'edit_products' ) || ! current_user_can( 'edit_post', $product_id ) || 'product' !== get_post_type( $product_id ) ) {
 			wp_send_json_error( array( 'message' => 'Keine Berechtigung.' ), 403 );
+			return;
 		}
 		try {
 			$task = sanitize_key( $_POST['task'] ?? '' );
@@ -190,7 +191,7 @@ final class Admin {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return;
 		}
-		echo '<div class="wrap p9ps-settings"><h1>P9 Lebensmitteldaten</h1><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo '<div class="wrap p9ps-settings"><h1>Patsch9 Lebensmitteldaten</h1><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( 'p9ps_settings' );
 		echo '<input type="hidden" name="action" value="p9ps_settings"><h2>Öffentliche Daten</h2><p>Die lokale BLS-4.0-Suche ist ohne Netzwerkzugriff verfügbar. Quelle: Max Rubner-Institut (2025), <a href="https://doi.org/10.25826/Data20251217-134202-0">BLS 4.0</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Auszug: neun Nährwerte; keine Allergendaten.</p>';
 		echo '<label><input name="off_enabled" type="checkbox" value="yes" ' . checked( get_option( 'p9ps_off_enabled', 'no' ), 'yes', false ) . '> Open Food Facts für bewusste Barcodeabfragen aktivieren</label><p>Bei Abfrage werden Barcode, Server-IP und Plugin-Kennung an world.openfoodfacts.org gesendet. Kein Versand von Rezepten, Kunden- oder Bestelldaten. Ergebnisse werden 24 Stunden zwischengespeichert, übernommene Produktdaten dauerhaft lokal gespeichert. OFF-Daten: <a href="https://world.openfoodfacts.org/terms-of-use">ODbL / Nutzungsbedingungen</a>. Namensnennung und bei Datenbankweitergabe ggf. Share-Alike beachten. Die Freigabe prüft die Lizenzpflichten nicht automatisch. Keine Besucheranfragen oder Hintergrundsynchronisation.</p><h2>Nutri-Score</h2><p>Die Berechnung steht intern auch ohne Logo bereit. Für die öffentliche Kennzeichnung zuerst die <a href="https://www.santepubliquefrance.fr/en/nutrition-and-physical-activity/nutri-score">Registrierung und Nutzungsbedingungen</a> prüfen. Offizielle Grafiken aus der Registrierung in der Mediathek auswählen; es werden keine nachgebauten Logos geliefert.</p>';
@@ -200,7 +201,7 @@ final class Admin {
 			echo '<p><label>Offizielles Logo ' . esc_html( strtoupper( $grade ) ) . ' <input class="p9ps-logo-id" name="logo_' . esc_attr( $grade ) . '" type="number" min="0" value="' . esc_attr( $id ) . '"></label> <button class="button p9ps-pick-logo" type="button">Bild auswählen</button></p>';
 		}
 		submit_button( 'Einstellungen speichern' );
-		echo '</form><h2>Verwendung</h2><p>Produkte → Produkt bearbeiten → Produktdaten → Lebensmittel (P9). Standardmäßig Ausgabe im Tab „Zutaten &amp; Nährwerte“. Für eigene Produktvorlagen und Block-Themes einen Shortcode-Block mit <code>[p9ps_food]</code> oder <code>[p9ps_food id="123"]</code> einsetzen. Angaben mit abweichenden Varianten als separate einfache Produkte pflegen.</p></div>';
+		echo '</form><h2>Verwendung</h2><p>Produkte → Produkt bearbeiten → Produktdaten → Lebensmittel (Patsch9). Standardmäßig Ausgabe im Tab „Zutaten &amp; Nährwerte“. Für eigene Produktvorlagen und Block-Themes einen Shortcode-Block mit <code>[p9ps_food]</code> oder <code>[p9ps_food id="123"]</code> einsetzen. Angaben mit abweichenden Varianten als separate einfache Produkte pflegen.</p></div>';
 	}
 	public static function save_settings(): void {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
@@ -221,4 +222,3 @@ final class Admin {
 		exit;
 	}
 }
-
