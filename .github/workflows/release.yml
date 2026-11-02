@@ -33,7 +33,7 @@ jobs:
 
   checks:
     needs: validate
-    uses: ./.github/workflows/checks.yml
+    uses: ./.github/workflows/checks.yml # zizmor: ignore[self-repository] -- Portable same-commit reusable workflow syntax, matching the other P9 repositories.
     permissions:
       contents: read
 

@@ -1,0 +1,8 @@
+{
+  "name": "patsch9-productsettings-checks",
+  "private": true,
+  "description": "Development-only WordPress integration test harness",
+  "devDependencies": {
+    "@wordpress/env": "12.0.0"
+  }
+}

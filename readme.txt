@@ -2,6 +2,7 @@
 Contributors: patsch9
 Tags: woocommerce, food, nutrition, ingredients, allergens
 Requires at least: 6.7
+Tested up to: 7.1
 Requires PHP: 8.1
 Requires Plugins: woocommerce
 Stable tag: 2026.11.1

@@ -22,7 +22,9 @@ Open Food Facts ist standardmäßig aus. Bewusste Abrufe verwenden einen festen 
 
 Actions sind an vollständige Commit-SHAs gebunden. Prüfjobs erhalten nur Leserechte und keine persistierten Git-Zugangsdaten. Nur der nach allen Checks gestartete Release-Job erhält `contents: write`; er führt keinen ausgecheckten Plugin-Code aus. GitHub-Releases verwenden das zuvor installierte und geprüfte ZIP mit SHA-256-Summe. Paket-Allowlist und Symlink-Prüfungen verhindern versehentlich ausgelieferte lokale Dateien.
 
-Automatisierte Tests decken Domänenlogik, Nutri-Score-Referenzfälle, Datenkonsistenz, Paketgrenzen und reale WordPress-/WooCommerce-Sicherheitsfälle ab. Ein strenger Plugin-Check-Ergebnisparser lehnt auch Warnungen, Checker-Abbrüche und unerkannte Ausgabe ab. Diese Prüfungen ersetzen kein unabhängiges Audit, keine Theme-Abnahme und keine Prüfung der fachlichen Lebensmittelangaben.
+Automatisierte Tests decken Domänenlogik, Nutri-Score-Referenzfälle, Datenkonsistenz, Paketgrenzen und reale WordPress-/WooCommerce-Sicherheitsfälle ab. Ein strenger Plugin-Check-Ergebnisparser lehnt technische Fehler, Warnungen, Checker-Abbrüche und unerkannte Ausgabe ab. Drei ausdrücklich benannte Verzeichnisrichtlinien werden für die reine GitHub-Verteilung ausgenommen: `plugin_updater_detected` wegen des schützenden `Update URI`-Headers sowie `readme_short_description_non_official_language` und `readme_description_non_official_language` wegen der gewünschten deutschen Dokumentation. Keine Sicherheitsprüfung ist ausgenommen. Vor einer WordPress.org-Einreichung müssen diese drei Ausnahmen entfallen. Die Testwerkzeuge sind in `package-lock.json` festgeschrieben und werden ohne Installationsskripte installiert.
+
+Diese Prüfungen ersetzen kein unabhängiges Audit, keine Theme-Abnahme und keine Prüfung der fachlichen Lebensmittelangaben.
 
 ## Sicherheitslücke melden
 

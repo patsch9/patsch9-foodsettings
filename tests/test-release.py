@@ -24,6 +24,10 @@ class ReleaseTests(unittest.TestCase):
             target = self.root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(SOURCE / name, target)
+        # Keep fixtures independent of future project version bumps.
+        (self.root / f'{SLUG}.php').write_text("<?php\n/**\n * Version: 2026.11.1\n */\ndefine( 'P9PS_VERSION', '2026.11.1' );\n")
+        (self.root / 'readme.txt').write_text('Stable tag: 2026.11.1\n== Changelog ==\n= 2026.11.1 =\n')
+        (self.root / 'CHANGELOG.md').write_text('## 2026.11.1\n')
 
     def replace(self, name, old, new):
         path = self.root / name

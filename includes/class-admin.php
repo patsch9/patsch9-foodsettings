@@ -98,7 +98,9 @@ final class Admin {
 		echo '</div></div>';
 	}
 	private static function json_input( string $key ): array {
-		$raw = isset( $_POST[ $key ] ) && is_string( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : '[]'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Checked by caller.
+		// Decode structured input before field-by-field validation in ProductData::sanitize(). Nonce is checked by the caller.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$raw = isset( $_POST[ $key ] ) && is_string( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : '[]';
 		if ( strlen( $raw ) > 300000 ) {
 			throw new \InvalidArgumentException( 'Datenumfang zu groß.' );
 		}
@@ -113,6 +115,8 @@ final class Admin {
 			return;
 		}
 		try {
+			// Structured fields are validated together below; text sanitization here would destroy the recipe/HTML schema.
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$in = isset( $_POST['p9ps'] ) && is_array( $_POST['p9ps'] ) ? wp_unslash( $_POST['p9ps'] ) : array();
 			$in['recipe'] = self::json_input( 'p9ps_recipe_json' );
 			$in['sources'] = self::json_input( 'p9ps_sources_json' );
@@ -146,20 +150,21 @@ final class Admin {
 				}
 				$result = Sources::search_bls( $query );
 			} elseif ( 'bls' === $task ) {
-				$result = Sources::bls( sanitize_text_field( $_POST['id'] ?? '' ) );
+				$result = Sources::bls( sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ) );
 			} elseif ( 'off' === $task ) {
-				$result = Sources::off( sanitize_text_field( $_POST['barcode'] ?? '' ) );
+				$result = Sources::off( sanitize_text_field( wp_unslash( $_POST['barcode'] ?? '' ) ) );
 			} elseif ( 'recipe' === $task ) {
-				$in = array( 'mode' => 'recipe', 'basis' => 'g', 'yield' => sanitize_text_field( $_POST['yield'] ?? '' ), 'recipe' => self::json_input( 'rows' ) );
+				$in = array( 'mode' => 'recipe', 'basis' => 'g', 'yield' => sanitize_text_field( wp_unslash( $_POST['yield'] ?? '' ) ), 'recipe' => self::json_input( 'rows' ) );
 				$d = ProductData::sanitize( $in );
 				$result = Recipe::calculate( $d['recipe'], (float) $d['yield'] );
 			} else {
 				throw new \InvalidArgumentException( 'Unbekannte Aktion.' );
 			}
-			wp_send_json_success( $result );
 		} catch ( \Throwable $e ) {
 			wp_send_json_error( array( 'message' => $e->getMessage() ), 400 );
+			return;
 		}
+		wp_send_json_success( $result );
 	}
 	public static function settings(): void {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
@@ -196,3 +201,4 @@ final class Admin {
 		exit;
 	}
 }
+
