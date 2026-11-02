@@ -56,6 +56,14 @@ final class ProductOptions {
 		} else {
 			unset( $_POST['patsch9fs']['enabled'] );
 		}
+
+		// If the enhancement script did not run, do not silently erase an existing legal checkout setting.
+		if ( empty( $_POST['patsch9fs_withdrawal_present'] ) ) {
+			$old = ProductData::get( $product );
+			if ( ! empty( $old['withdrawal_ack'] ) ) {
+				$_POST['patsch9fs']['withdrawal_ack'] = '1';
+			}
+		}
 	}
 
 	public static function save_index_meta( $product ): void {
