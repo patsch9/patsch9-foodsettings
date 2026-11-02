@@ -126,5 +126,5 @@ jobs:
           python3 tests/check-plugin-check.py .release-build/results/plugin-check.txt "$status"
       - name: Stop disposable environment
         if: always()
-        run: wp-env destroy --yes
+        run: wp-env destroy --force
 
