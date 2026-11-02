@@ -15,7 +15,7 @@ Lebensmittelangaben, lokale BLS-Nährwertsuche, Barcodeimport und Rezeptberechnu
 
 Erste testbare Version. Zutaten, Allergene, Nährwertdeklaration und weitere Lebensmittelangaben im klassischen WooCommerce-Produkteditor pflegen. Germanized Pro wird nicht benötigt.
 
-Lebensmittel werden direkt über die Produktoption „Lebensmittel“ in der Kopfzeile der WooCommerce-Produktdaten aktiviert. Erst dann wird der Lebensmitteldaten-Reiter eingeblendet. Für tatsächlich individuell nach Kundenauswahl oder -bestimmung angefertigte Waren kann pro Produkt optional eine verpflichtende Checkout-Bestätigung zum fehlenden Widerrufsrecht nach § 312g Abs. 2 Nr. 1 BGB aktiviert werden. Der Lebensmittelstatus allein aktiviert diese Bestätigung nicht und schließt ein Widerrufsrecht nicht automatisch aus.
+Lebensmittel werden direkt über die Produktoption „Lebensmittel (P9)“ in der Kopfzeile der WooCommerce-Produktdaten aktiviert. Erst dann wird der Lebensmitteldaten-Reiter eingeblendet. Für tatsächlich individuell nach Kundenauswahl oder -bestimmung angefertigte Waren kann pro Produkt optional eine verpflichtende Checkout-Bestätigung zum fehlenden Widerrufsrecht nach § 312g Abs. 2 Nr. 1 BGB aktiviert werden. Der Lebensmittelstatus allein aktiviert diese Bestätigung nicht und schließt ein Widerrufsrecht nicht automatisch aus.
 
 Das zusätzliche mehrzeilige Feld „Zutatenhinweise“ nimmt ergänzende Warntexte oder Kakaoangaben auf. Freigegebene Hinweise erscheinen unter der Zutatenliste; Zeilenumbrüche bleiben erhalten. Hinweise werden manuell gepflegt und mit der Deklaration in Bestellpositionen archiviert. Neue oder geänderte Hinweise erfordern eine erneute Freigabe. Ein leeres Feld verändert vorhandene Freigaben nicht.
 
@@ -37,7 +37,7 @@ Nutri-Score-Grafiken werden nicht von einem externen Dienst abgerufen. Offiziell
 
 1. Installierbares ZIP mit dem Ordner patsch9-foodsettings hochladen und aktivieren.
 2. WooCommerce aktivieren; klassischen Produkteditor verwenden.
-3. Produkt öffnen und in der Kopfzeile der Produktdaten „Lebensmittel“ aktivieren. Danach Produktdaten > Lebensmittel (Patsch9) ausfüllen, Angaben prüfen, Prüffreigabe setzen und speichern.
+3. Produkt öffnen und in der Kopfzeile der Produktdaten „Lebensmittel (P9)“ aktivieren. Danach Produktdaten > Lebensmittel (Patsch9) ausfüllen, Angaben prüfen, Prüffreigabe setzen und speichern.
 4. Für tatsächlich individuell angefertigte Waren kann im Lebensmittel-Reiter optional die verpflichtende Checkout-Bestätigung aktiviert werden. Die rechtlichen Voraussetzungen müssen vom Shopbetreiber für das konkrete Produkt geprüft werden.
 5. Bei Bedarf WooCommerce > Lebensmitteldaten konfigurieren.
 
