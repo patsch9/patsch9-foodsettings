@@ -7,9 +7,9 @@ from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 from release_metadata import SLUG, validate
 
 REQUIRED = {
-    f'{SLUG}.php', 'readme.txt', 'LICENSE', 'assets/admin.css', 'assets/admin.js',
+    f'{SLUG}.php', 'readme.txt', 'LICENSE', 'assets/admin.css', 'assets/admin.js', 'assets/product-options.js',
     'data/bls/manifest.json', 'data/bls/index.json',
-    *(f'includes/class-{name}.php' for name in ('admin', 'frontend', 'nutrition', 'nutriscore', 'product-data', 'recipe', 'sources', 'editor-draft')),
+    *(f'includes/class-{name}.php' for name in ('admin', 'frontend', 'nutrition', 'nutriscore', 'product-data', 'recipe', 'sources', 'editor-draft', 'product-options', 'checkout')),
 }
 RUNTIME_DIRS = {'assets': {'.css', '.js'}, 'includes': {'.php'}, 'data': {'.json'}}
 
