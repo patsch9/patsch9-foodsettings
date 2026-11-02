@@ -1,4 +1,4 @@
-=== P9 Product Settings – Lebensmittel ===
+=== P9 Food Settings – Lebensmittel ===
 Contributors: patsch9
 Tags: woocommerce, food, nutrition, ingredients, allergens
 Requires at least: 6.7
@@ -66,4 +66,3 @@ Nein. Öffentlich erscheinen ausschließlich freigegebene Deklarationen und Quel
 
 = 0.1.0 =
 * Erste Implementierung: Lebensmittelfelder, BLS-4.0-Datensatz, OFF-v3-Import, Rezepteditor, Nutri-Score-2023-Rechner und Prüffreigabe.
-
