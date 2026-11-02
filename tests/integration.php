@@ -118,6 +118,8 @@ $subscriber_ajax = $ajax; $subscriber_ajax['nonce'] = wp_create_nonce( 'p9ps_adm
 p9ps_assert( false === p9ps_ajax_request( $subscriber_ajax )['response']['success'], 'A valid nonce does not grant a subscriber AJAX access.' );
 $subscriber_user = new WP_User( $subscriber );
 $subscriber_user->add_cap( 'edit_products' );
+wp_set_current_user( 0 ); wp_set_current_user( $subscriber );
+p9ps_assert( current_user_can( 'edit_products' ) && ! current_user_can( 'edit_post', $p->get_id() ), 'Fixture grants general editing but not access to the admin product.' );
 p9ps_assert( false === p9ps_ajax_request( $subscriber_ajax )['response']['success'], 'General product editing capability does not bypass per-product authorization.' );
 $subscriber_user->remove_cap( 'edit_products' );
 $_POST['p9ps']['ingredients'] = 'Unauthorized';
