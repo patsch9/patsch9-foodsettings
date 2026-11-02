@@ -114,7 +114,7 @@ jobs:
           chmod 777 .release-build/results
           jq -n --arg plugin "$PWD/.release-build/patsch9-productsettings" --arg tests "$PWD/tests" --arg results "$PWD/.release-build/results" \
             '{core: null, testsEnvironment: false, mappings: {"wp-content/plugins/patsch9-productsettings": $plugin, "p9ps-tests": $tests, "p9ps-results": $results}}' > .wp-env.json
-          node_modules/.bin/wp-env start --update
+          node_modules/.bin/wp-env start
           node_modules/.bin/wp-env run cli wp plugin install woocommerce --activate
           node_modules/.bin/wp-env run cli wp plugin install plugin-check --activate
           node_modules/.bin/wp-env run cli wp plugin activate patsch9-productsettings
