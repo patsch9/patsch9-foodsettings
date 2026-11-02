@@ -8,7 +8,7 @@ final class Frontend {
 		add_filter( 'woocommerce_product_tabs', static function ( $tabs ) {
 			global $product;
 			if ( $product && ProductData::approved( ProductData::get( $product ) ) ) {
-				$tabs['p9ps_food'] = array( 'title' => __( 'Zutaten & Nährwerte', 'patsch9-productsettings' ), 'priority' => 25, 'callback' => static function () {
+				$tabs['p9ps_food'] = array( 'title' => __( 'Zutaten & Nährwerte', 'patsch9-foodsettings' ), 'priority' => 25, 'callback' => static function () {
 					global $product;
 					// All output is escaped inside render().
 					echo self::render( $product ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -131,4 +131,3 @@ final class Frontend {
 		}
 	}
 }
-
