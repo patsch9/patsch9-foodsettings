@@ -60,7 +60,7 @@ Changelog-Inhalte bleiben redaktionelle Projektdokumentation. Sie sind im normal
 
 Foodsettings wird aktuell ausschließlich über GitHub veröffentlicht. Es gibt keinen WordPress.org-/SVN-Deploy für dieses Plugin. Alpha- und Beta-Releases bleiben daher ebenfalls reine GitHub-Prereleases.
 
-Der Paketordner heißt weiterhin immer `patsch9-productsettings`, damit WordPress eine vorhandene Installation als dasselbe Plugin erkennt.
+Der installierbare Paketordner und das Release-ZIP verwenden durchgehend den Slug `patsch9-foodsettings`.
 
 ## Sicherheit
 
