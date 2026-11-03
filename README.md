@@ -27,7 +27,7 @@ Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährw
 5. Endgültige Angaben kontrollieren, Prüffreigabe anklicken und speichern. Die Freigabe ist eine interne Arbeitsfunktion; sie ersetzt keine fachliche oder rechtliche Prüfung.
 6. Ausgabe im verwendeten Theme überprüfen. Bei Block-Vorlagen ohne den klassischen Produkt-Tab den Shortcode-Block ergänzen.
 
-Voraussetzungen: WordPress ab 6.7, PHP ab 8.1, WooCommerce ab 9.0. Getestete konkrete Umgebung und Grenzen stehen in [VALIDATION.md](VALIDATION.md). Der neue React-Produkteditor wird in dieser Version nicht unterstützt.
+Voraussetzungen: WordPress ab 6.7, PHP ab 8.1, WooCommerce ab 9.9. Getestete konkrete Umgebung und Grenzen stehen in [VALIDATION.md](VALIDATION.md). Der neue React-Produkteditor wird in dieser Version nicht unterstützt.
 
 ## Zusätzliche Zutatenhinweise
 

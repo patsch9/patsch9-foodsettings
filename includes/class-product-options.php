@@ -17,9 +17,14 @@ final class ProductOptions {
 		if ( $post instanceof \WP_Post && 'product' === $post->post_type ) {
 			$product = wc_get_product( $post->ID );
 			if ( $product ) {
-				$indexed = $product->get_meta( ProductData::FOOD_ENABLED_META, true );
-				$data = ProductData::get( $product );
-				$default = 'yes' === $indexed || ( '' === $indexed && ! empty( $data['enabled'] ) ) ? 'yes' : 'no';
+				$draft = EditorDraft::get( $product );
+				if ( null !== $draft ) {
+					$default = ! empty( $draft['enabled'] ) ? 'yes' : 'no';
+				} else {
+					$indexed = $product->get_meta( ProductData::FOOD_ENABLED_META, true );
+					$data = ProductData::get( $product );
+					$default = 'yes' === $indexed || ( '' === $indexed && ! empty( $data['enabled'] ) ) ? 'yes' : 'no';
+				}
 			}
 		}
 
@@ -77,6 +82,11 @@ final class ProductOptions {
 		if ( ! self::authorized( $product ) ) {
 			return;
 		}
+		// Admin::save() runs at priority 10. A recovery draft means validation failed,
+		// so the persistent index/header metadata must remain untouched as well.
+		if ( null !== EditorDraft::get( $product ) ) {
+			return;
+		}
 		$data = ProductData::get( $product );
 		$required = ! empty( $data['enabled'] ) && ! empty( $data['withdrawal_ack'] );
 		$product->update_meta_data( ProductData::FOOD_ENABLED_META, ! empty( $data['enabled'] ) ? 'yes' : 'no' );
@@ -98,7 +108,7 @@ final class ProductOptions {
 		if ( ! $product ) {
 			return;
 		}
-		$data = ProductData::get( $product );
+		$data = EditorDraft::get( $product ) ?? ProductData::get( $product );
 		wp_enqueue_script( 'patsch9fs-product-options', PATSCH9FS_URL . 'assets/product-options.js', array( 'jquery', 'patsch9fs-admin' ), PATSCH9FS_VERSION, true );
 		wp_localize_script(
 			'patsch9fs-product-options',

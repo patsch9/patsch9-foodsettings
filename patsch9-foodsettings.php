@@ -13,7 +13,7 @@
  * Requires at least: 6.7
  * Requires PHP: 8.1
  * Requires Plugins: woocommerce
- * WC requires at least: 9.0
+ * WC requires at least: 9.9
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -31,6 +31,12 @@ add_action( 'plugins_loaded', static function () {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		add_action( 'admin_notices', static function () {
 			echo '<div class="notice notice-warning"><p>' . esc_html__( 'Patsch9 Food Settings benötigt WooCommerce.', 'patsch9-foodsettings' ) . '</p></div>';
+		} );
+		return;
+	}
+	if ( ! defined( 'WC_VERSION' ) || version_compare( WC_VERSION, '9.9', '<' ) ) {
+		add_action( 'admin_notices', static function () {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'Patsch9 Food Settings benötigt WooCommerce 9.9 oder neuer. Die Plugin-Funktionen wurden nicht geladen, damit die verpflichtende Checkout-Bestätigung nicht umgangen werden kann.', 'patsch9-foodsettings' ) . '</p></div>';
 		} );
 		return;
 	}

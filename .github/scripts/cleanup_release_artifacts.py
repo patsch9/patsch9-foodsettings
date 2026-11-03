@@ -16,6 +16,8 @@ import tempfile
 from urllib.parse import quote
 import zipfile
 
+ARTIFACT_PREFIX = "patsch9-foodsettings-"
+
 
 def gh_api(endpoint, *, destination=None, method="GET", binary=False):
     command = ["gh", "api", "--method", method, endpoint]
@@ -101,9 +103,9 @@ def select_release_tag(run, artifacts, published):
         return run["head_branch"]
     # Older workflows also built on main and workflow_dispatch. Their versioned
     # archive identifies the candidate release; hashes still prove every copy.
-    versions = {artifact["name"].removeprefix("p9-rezeptwerk-") for artifact in artifacts
+    versions = {artifact["name"].removeprefix(ARTIFACT_PREFIX) for artifact in artifacts
                 if artifact["workflow_run"]["id"] == run["id"]
-                and artifact["name"].startswith("p9-rezeptwerk-")}
+                and artifact["name"].startswith(ARTIFACT_PREFIX)}
     candidates = [tag for tag in published if tag.removeprefix("v") in versions]
     return candidates[0] if len(candidates) == 1 else None
 
@@ -126,7 +128,7 @@ def cleanup(repo, *, run_id=None, release_tag=None):
     deleted, freed, errors = 0, 0, 0
     for artifact in artifacts:
         name = artifact["name"]
-        if artifact.get("expired") or not (name == "release-assets" or name.startswith("p9-rezeptwerk-")):
+        if artifact.get("expired") or not (name == "release-assets" or name.startswith(ARTIFACT_PREFIX)):
             continue
         artifact_run_id = artifact["workflow_run"]["id"]
         try:

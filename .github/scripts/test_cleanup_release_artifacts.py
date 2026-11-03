@@ -143,7 +143,7 @@ class CleanupTests(unittest.TestCase):
 
     def test_old_main_build_uses_versioned_artifact_candidate(self):
         self.run["head_branch"] = "main"
-        self.artifact["name"] = "p9-rezeptwerk-2026.11.1"
+        self.artifact["name"] = "patsch9-foodsettings-2026.11.1"
         self.scan()
         self.assertEqual(len(self.deletions), 1)
 
@@ -154,7 +154,7 @@ class CleanupTests(unittest.TestCase):
 
     def test_ambiguous_version_aliases_are_kept(self):
         self.run["head_branch"] = "main"
-        self.artifact["name"] = "p9-rezeptwerk-2026.11.1"
+        self.artifact["name"] = "patsch9-foodsettings-2026.11.1"
         self.assertIsNone(cleanup.select_release_tag(self.run, [self.artifact],
                                                     {"2026.11.1": {}, "v2026.11.1": {}}))
 
