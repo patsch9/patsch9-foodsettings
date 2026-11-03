@@ -13,7 +13,7 @@ final class Checkout {
 		add_action( 'woocommerce_review_order_before_submit', array( __CLASS__, 'render_classic_field' ) );
 		add_action( 'woocommerce_checkout_process', array( __CLASS__, 'validate_classic_field' ) );
 		add_action( 'woocommerce_checkout_create_order', array( __CLASS__, 'save_classic_acknowledgement' ), 20, 2 );
-		add_action( 'woocommerce_store_api_checkout_update_order_meta', array( __CLASS__, 'save_block_acknowledgement' ), 50 );
+		add_action( 'woocommerce_store_api_checkout_update_order_from_request', array( __CLASS__, 'handle_block_acknowledgement' ), 50, 2 );
 	}
 
 	public static function set_product_requirement( int $product_id, bool $required ): void {
@@ -31,6 +31,10 @@ final class Checkout {
 
 	private static function acknowledgement_label(): string {
 		return __( 'Ich bestätige, dass die entsprechend gekennzeichneten Lebensmittel nach meiner individuellen Auswahl oder Bestimmung angefertigt werden, und habe zur Kenntnis genommen, dass für diese Waren nach § 312g Abs. 2 Nr. 1 BGB kein Widerrufsrecht besteht.', 'patsch9-foodsettings' );
+	}
+
+	private static function acknowledgement_error(): string {
+		return __( 'Bitte bestätige den Hinweis zum Widerrufsrecht für die individuell angefertigten Lebensmittel.', 'patsch9-foodsettings' );
 	}
 
 	private static function product_requires_acknowledgement( $product ): bool {
@@ -97,33 +101,48 @@ final class Checkout {
 	private static function indexed_product_ids(): array {
 		$stored = get_option( self::INDEX_OPTION, array() );
 		$parents = is_array( $stored ) ? array_values( array_unique( array_filter( array_map( 'absint', $stored ) ) ) ) : array();
-		$valid_parents = array();
-		$ids = array();
-
-		foreach ( $parents as $id ) {
-			$product = wc_get_product( $id );
-			if ( ! $product || 'publish' !== $product->get_status() || ! self::product_requires_acknowledgement( $product ) ) {
-				continue;
-			}
-			$valid_parents[] = $id;
-			$ids[] = $id;
-			if ( $product->is_type( 'variable' ) ) {
-				foreach ( $product->get_children() as $child_id ) {
-					$ids[] = absint( $child_id );
-				}
-			}
+		if ( ! $parents ) {
+			return array();
 		}
 
-		sort( $valid_parents, SORT_NUMERIC );
-		$normalized_parents = $parents;
-		sort( $normalized_parents, SORT_NUMERIC );
-		if ( $valid_parents !== $normalized_parents ) {
-			update_option( self::INDEX_OPTION, $valid_parents, false );
+		// Keep drafts/future products in the persistent index. Publication state is
+		// evaluated at read time so Quick Edit, REST and scheduled publishing work.
+		$published_parents = get_posts(
+			array(
+				'post_type'              => 'product',
+				'post_status'            => 'publish',
+				'post__in'               => $parents,
+				'posts_per_page'         => -1,
+				'fields'                 => 'ids',
+				'orderby'                => 'post__in',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+		$published_parents = array_values( array_unique( array_filter( array_map( 'absint', $published_parents ) ) ) );
+		if ( ! $published_parents ) {
+			return array();
 		}
-		return array_values( array_unique( array_filter( $ids ) ) );
+
+		$variations = get_posts(
+			array(
+				'post_type'              => 'product_variation',
+				'post_status'            => 'publish',
+				'post_parent__in'        => $published_parents,
+				'posts_per_page'         => -1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		return array_values( array_unique( array_filter( array_map( 'absint', array_merge( $published_parents, $variations ) ) ) ) );
 	}
 
 	public static function register_block_field(): void {
+		// Conditional required/hidden schemas were added in WooCommerce 9.9.
 		if ( ! function_exists( 'woocommerce_register_additional_checkout_field' ) || ! defined( 'WC_VERSION' ) || version_compare( WC_VERSION, '9.9', '<' ) ) {
 			return;
 		}
@@ -169,7 +188,7 @@ final class Checkout {
 				'type'          => 'checkbox',
 				'required'      => $required,
 				'hidden'        => $hidden,
-				'error_message' => __( 'Bitte bestätige den Hinweis zum Widerrufsrecht für die individuell angefertigten Lebensmittel.', 'patsch9-foodsettings' ),
+				'error_message' => self::acknowledgement_error(),
 			)
 		);
 	}
@@ -197,7 +216,7 @@ final class Checkout {
 		// WooCommerce validates the checkout request nonce before this validation hook runs.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( self::cart_requires_acknowledgement() && empty( $_POST[ self::CLASSIC_FIELD_ID ] ) ) {
-			wc_add_notice( __( 'Bitte bestätige den Hinweis zum Widerrufsrecht für die individuell angefertigten Lebensmittel.', 'patsch9-foodsettings' ), 'error' );
+			wc_add_notice( self::acknowledgement_error(), 'error' );
 		}
 	}
 
@@ -207,6 +226,12 @@ final class Checkout {
 		$order->update_meta_data( '_patsch9fs_withdrawal_acknowledgement_text', self::acknowledgement_label() );
 		$order->update_meta_data( '_patsch9fs_withdrawal_acknowledgement_source', sanitize_key( $source ) );
 		$order->update_meta_data( '_patsch9fs_withdrawal_acknowledgement_products', array_values( array_map( 'absint', $product_ids ) ) );
+	}
+
+	private static function clear_acknowledgement( $order ): void {
+		foreach ( array( '_patsch9fs_withdrawal_acknowledged', '_patsch9fs_withdrawal_acknowledged_at', '_patsch9fs_withdrawal_acknowledgement_text', '_patsch9fs_withdrawal_acknowledgement_source', '_patsch9fs_withdrawal_acknowledgement_products' ) as $key ) {
+			$order->delete_meta_data( $key );
+		}
 	}
 
 	public static function save_classic_acknowledgement( $order, array $data ): void {
@@ -219,7 +244,7 @@ final class Checkout {
 	}
 
 	private static function block_field_checked( $order ): bool {
-		if ( class_exists( '\Automattic\WooCommerce\Blocks\Package' ) && class_exists( '\Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields' ) ) {
+		if ( class_exists( '\\Automattic\\WooCommerce\\Blocks\\Package' ) && class_exists( '\\Automattic\\WooCommerce\\Blocks\\Domain\\Services\\CheckoutFields' ) ) {
 			try {
 				$fields = \Automattic\WooCommerce\Blocks\Package::container()->get( \Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields::class );
 				return true === $fields->get_field_from_object( self::BLOCK_FIELD_ID, $order, 'other' );
@@ -230,9 +255,27 @@ final class Checkout {
 		return '1' === (string) $order->get_meta( '_wc_other/' . self::BLOCK_FIELD_ID, true );
 	}
 
-	public static function save_block_acknowledgement( $order ): void {
-		if ( self::block_field_checked( $order ) ) {
-			self::record_acknowledgement( $order, 'block', self::order_acknowledgement_product_ids( $order ) );
+	public static function handle_block_acknowledgement( $order, $request ): void {
+		if ( ! is_object( $request ) || ! method_exists( $request, 'get_method' ) || 'POST' !== strtoupper( (string) $request->get_method() ) ) {
+			return;
 		}
+
+		$product_ids = self::order_acknowledgement_product_ids( $order );
+		if ( ! $product_ids ) {
+			// A stale/malicious checkbox value must never create an acknowledgement
+			// record when the order contains no product requiring it.
+			self::clear_acknowledgement( $order );
+			return;
+		}
+		if ( self::block_field_checked( $order ) ) {
+			self::record_acknowledgement( $order, 'block', $product_ids );
+			return;
+		}
+
+		$message = self::acknowledgement_error();
+		if ( class_exists( '\\Automattic\\WooCommerce\\StoreApi\\Exceptions\\RouteException' ) ) {
+			throw new \Automattic\WooCommerce\StoreApi\Exceptions\RouteException( 'patsch9fs_withdrawal_ack_required', esc_html( $message ), 400 );
+		}
+		throw new \RuntimeException( esc_html( $message ) );
 	}
 }
