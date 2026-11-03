@@ -54,6 +54,7 @@ jobs:
           php tests/run.php
           php tests/test-ingredient-notes.php
           php tests/test-withdrawal-settings.php
+          php tests/test-google-review-regressions.php
 
   package:
     runs-on: ubuntu-latest
@@ -128,6 +129,7 @@ jobs:
           npm audit --audit-level=high
           node tests/test-admin.cjs
           node tests/test-product-options.cjs
+          node tests/test-admin-google-review.cjs
           echo "$PWD/node_modules/.bin" >> "$GITHUB_PATH"
           mkdir -p .release-build/results
           chmod 777 .release-build/results
