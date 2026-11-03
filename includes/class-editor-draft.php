@@ -31,7 +31,7 @@ final class EditorDraft {
 		foreach ( ProductData::TEXT_FIELDS as $key ) {
 			$data[ $key ] = sanitize_textarea_field( $input[ $key ] ?? '' );
 		}
-		foreach ( array( 'enabled', 'show_score', 'same_variations' ) as $key ) {
+		foreach ( array( 'enabled', 'show_score', 'same_variations', 'withdrawal_ack' ) as $key ) {
 			$data[ $key ] = ! empty( $input[ $key ] );
 		}
 		foreach ( array( 'portion', 'alcohol', 'yield', 'fruit' ) as $key ) {
