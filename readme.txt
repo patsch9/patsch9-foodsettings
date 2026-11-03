@@ -5,6 +5,7 @@ Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 8.1
 Requires Plugins: woocommerce
+WC requires at least: 9.9
 Stable tag: 2026.11.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -36,7 +37,7 @@ Nutri-Score-Grafiken werden nicht von einem externen Dienst abgerufen. Offiziell
 == Installation ==
 
 1. Installierbares ZIP mit dem Ordner patsch9-foodsettings hochladen und aktivieren.
-2. WooCommerce aktivieren; klassischen Produkteditor verwenden.
+2. WooCommerce 9.9 oder neuer aktivieren; klassischen Produkteditor verwenden.
 3. Produkt öffnen und in der Kopfzeile der Produktdaten „Lebensmittel (P9)“ aktivieren. Danach Produktdaten > Lebensmittel (Patsch9) ausfüllen, Angaben prüfen, Prüffreigabe setzen und speichern.
 4. Für tatsächlich individuell angefertigte Waren kann im Lebensmittel-Reiter optional die verpflichtende Checkout-Bestätigung aktiviert werden. Die rechtlichen Voraussetzungen müssen vom Shopbetreiber für das konkrete Produkt geprüft werden.
 5. Bei Bedarf WooCommerce > Lebensmitteldaten konfigurieren.
@@ -53,7 +54,7 @@ Nein. Die optionale Checkout-Bestätigung ist getrennt von der Lebensmittelkennz
 
 = Funktioniert die Checkout-Bestätigung auch im Checkout-Block? =
 
-Ja, die produktabhängige Anzeige wird im Checkout-Block ab WooCommerce 9.9 über die Additional Checkout Fields API umgesetzt. Der klassische Checkout wird ebenfalls unterstützt. Die Bestätigung wird mit Zeitpunkt, Wortlaut, Checkout-Typ und betroffenen Produkt-IDs an der Bestellung dokumentiert.
+Ja. Patsch9 Food Settings setzt dafür WooCommerce 9.9 oder neuer voraus, weil die produktabhängige Pflicht-/Sichtbarkeitslogik der Additional Checkout Fields API ab dieser Version verfügbar ist. Zusätzlich prüft das Plugin die Bestätigung serverseitig beim Store-API-Checkout. Der klassische Checkout wird ebenfalls unterstützt. Die Bestätigung wird mit Zeitpunkt, Wortlaut, Checkout-Typ und betroffenen Produkt-IDs an der Bestellung dokumentiert.
 
 = Sind Zutaten und Allergene automatisch verlässlich? =
 
