@@ -71,12 +71,14 @@ Nein. Öffentlich erscheinen ausschließlich freigegebene Deklarationen und Quel
 == Changelog ==
 
 = 2026.11.1 =
-* Eingaben nach Validierungsfehlern im privaten Editor-Zwischenspeicher wiederherstellbar; Shopangaben bleiben unverändert.
-* Alkohol-Ausschluss ohne Verlust der Kategorieauswahl, UTF-8-Suche und Darstellung optionaler Angaben verbessert.
-* Widersprüchliche BLS-Nährwerte sind leichter erkennbar und bleiben manuell korrigierbar.
-* GitHub-Releases mit geprüften Installationspaketen, SHA-256-Prüfsummen und einheitlicher Versionierung.
-* Verbindliche WordPress-/WooCommerce-, Sicherheits- und Paketprüfungen vor jeder Veröffentlichung.
-* Passwortgeschützte Produktangaben geschützt; unbekannte Natriumwerte bleiben unbekannt.
+* Lebensmittel-Aktivierung in die WooCommerce-Produktkopfzeile verschoben; der Lebensmitteldaten-Reiter erscheint nur für aktivierte Produkte.
+* Optionale verpflichtende Checkout-Bestätigung für tatsächlich individuell angefertigte Waren im klassischen Checkout und Checkout Block ergänzt; finale Store-API-Prüfung erfolgt serverseitig.
+* WooCommerce 9.9 ist Mindestversion; ältere Versionen werden fail-closed abgewiesen, damit die Checkout-Pflicht nicht umgangen werden kann.
+* Produktindex und Editor-Wiederherstellung für Entwürfe, Varianten und Validierungsfehler gehärtet; Checkout-Rechtsoptionen entziehen nicht die Freigabe der Lebensmitteldaten.
+* Open-Food-Facts-Fallbacks, AJAX-Fehlerbehandlung und Dezimaldarstellung sehr kleiner berechneter Werte verbessert; widersprüchliche Dichteumrechnungen werden abgewiesen.
+* Mehrzeilige Zutatenhinweise für Warntexte/Kakaoangaben ergänzt und in Freigabe sowie Bestell-Snapshots integriert.
+* Widersprüchliche BLS-Nährwerte bleiben sichtbar und editierbar; passwortgeschützte Produktangaben und Logo-Auswahl weiter abgesichert.
+* GitHub-Releases mit geprüftem Installationspaket, SHA-256-Prüfsumme, PHP-/WooCommerce-Integrationstests und strengem WordPress Plugin Check.
 
 = 0.1.0 =
 * Erste Implementierung: Lebensmittelfelder, BLS-4.0-Datensatz, OFF-v3-Import, Rezepteditor, Nutri-Score-2023-Rechner und Prüffreigabe.
