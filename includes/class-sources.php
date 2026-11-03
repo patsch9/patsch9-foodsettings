@@ -100,6 +100,7 @@ final class Sources {
 			if ( is_string( $value ) && '' !== trim( $value ) ) {
 				return $value;
 			}
+		}
 		return $fallback;
 	}
 
