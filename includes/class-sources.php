@@ -95,6 +95,14 @@ final class Sources {
 		return $record;
 	}
 
+	private static function first_nonempty_text( array $values, string $fallback = '' ): string {
+		foreach ( $values as $value ) {
+			if ( is_string( $value ) && '' !== trim( $value ) ) {
+				return $value;
+			}
+		return $fallback;
+	}
+
 	/** Current v3 nutrition schema, with explicit support for the legacy per-100 fields. */
 	public static function normalize_off( array $p, string $barcode ): array {
 		$map = array( 'energy_kj' => 'energy-kj', 'energy_kcal' => 'energy-kcal', 'fat' => 'fat', 'saturates' => 'saturated-fat', 'carbs' => 'carbohydrates', 'sugars' => 'sugars', 'fibre' => 'fiber', 'protein' => 'proteins', 'salt' => 'salt' );
@@ -134,10 +142,14 @@ final class Sources {
 			}
 		}
 		$n = Nutrition::clean( $n, $basis );
-		// Use only safe emphasis markup; external HTML/classes/URLs never enter the editor.
-		$declaration = $p['ingredients_text_with_allergens_de'] ?? $p['ingredients_text_de'] ?? $p['ingredients_text'] ?? '';
+		// OFF often returns requested localized fields as empty strings. Fall back
+		// to the next populated field instead of treating an empty string as final.
+		$declaration = self::first_nonempty_text(
+			array( $p['ingredients_text_with_allergens_de'] ?? null, $p['ingredients_text_de'] ?? null, $p['ingredients_text'] ?? null )
+		);
 		$declaration = preg_replace( '/<span\b[^>]*class=["\x27]allergen["\x27][^>]*>(.*?)<\/span>/is', '<strong>$1</strong>', $declaration );
 		$declaration = wp_kses( $declaration, array( 'strong' => array(), 'b' => array(), 'em' => array() ) );
+		$name = sanitize_text_field( self::first_nonempty_text( array( $p['product_name_de'] ?? null, $p['product_name'] ?? null ), $barcode ) );
 		$allergen_names = ProductData::allergens();
 		$traces = array();
 		foreach ( (array) ( $p['traces_tags'] ?? array() ) as $tag ) {
@@ -146,11 +158,11 @@ final class Sources {
 			}
 		}
 		return array(
-			'name' => sanitize_text_field( $p['product_name_de'] ?? $p['product_name'] ?? $barcode ),
+			'name' => $name,
 			'brands' => sanitize_text_field( $p['brands'] ?? '' ), 'basis' => $basis, 'nutrients' => $n,
 			'declaration' => $declaration, 'allergens' => array_values( array_intersect( ProductData::ALLERGEN_IDS, $p['allergens_tags'] ?? array() ) ),
 			'traces' => $traces ? 'Kann Spuren von ' . implode( ', ', $traces ) . ' enthalten.' : '',
-			'source' => array( 'provider' => 'off', 'id' => $barcode, 'version' => (string) ( $p['last_modified_t'] ?? '' ), 'name' => sanitize_text_field( $p['product_name_de'] ?? $p['product_name'] ?? $barcode ), 'license' => 'ODbL-1.0', 'retrieved' => gmdate( 'c' ) ),
+			'source' => array( 'provider' => 'off', 'id' => $barcode, 'version' => (string) ( $p['last_modified_t'] ?? '' ), 'name' => $name, 'license' => 'ODbL-1.0', 'retrieved' => gmdate( 'c' ) ),
 			'external_grade' => sanitize_text_field( $p['nutriscore']['2023']['grade'] ?? '' ),
 			'warning' => 'Community-Daten: Packung, deutsche Zutatenliste, Allergene, Spuren und Bezugsgröße kontrollieren. Fehlende oder Kleiner-als-Angaben werden nicht als null interpretiert. Ein fremder Nutri-Score wird nicht automatisch veröffentlicht.',
 		);
