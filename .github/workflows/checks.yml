@@ -141,7 +141,9 @@ jobs:
           node_modules/.bin/wp-env run cli wp plugin activate patsch9-foodsettings
       - name: Integration and security regressions against the installed package
         if: ${{ !inputs.release_only }}
-        run: node_modules/.bin/wp-env run cli env PATSCH9FS_RUN_INTEGRATION_TESTS=1 wp eval-file patsch9fs-tests/integration.php
+        run: |
+          node_modules/.bin/wp-env run cli env PATSCH9FS_RUN_INTEGRATION_TESTS=1 wp eval-file patsch9fs-tests/integration.php
+          node_modules/.bin/wp-env run cli env PATSCH9FS_RUN_INTEGRATION_TESTS=1 wp eval-file patsch9fs-tests/test-checkout-integration.php
       - name: Strict WordPress Plugin Check on the installed package
         if: ${{ !inputs.release_only }}
         shell: bash
