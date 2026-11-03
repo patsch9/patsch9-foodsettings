@@ -244,7 +244,7 @@ final class Checkout {
 	}
 
 	private static function block_field_checked( $order ): bool {
-		if ( class_exists( '\\Automattic\\WooCommerce\\Blocks\\Package' ) && class_exists( '\\Automattic\\WooCommerce\\Blocks\\Domain\\Services\\CheckoutFields' ) ) {
+		if ( class_exists( '\Automattic\WooCommerce\Blocks\Package' ) && class_exists( '\Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields' ) ) {
 			try {
 				$fields = \Automattic\WooCommerce\Blocks\Package::container()->get( \Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields::class );
 				return true === $fields->get_field_from_object( self::BLOCK_FIELD_ID, $order, 'other' );
@@ -273,7 +273,7 @@ final class Checkout {
 		}
 
 		$message = self::acknowledgement_error();
-		if ( class_exists( '\\Automattic\\WooCommerce\\StoreApi\\Exceptions\\RouteException' ) ) {
+		if ( class_exists( '\Automattic\WooCommerce\StoreApi\Exceptions\RouteException' ) ) {
 			throw new \Automattic\WooCommerce\StoreApi\Exceptions\RouteException( 'patsch9fs_withdrawal_ack_required', esc_html( $message ), 400 );
 		}
 		throw new \RuntimeException( esc_html( $message ) );
