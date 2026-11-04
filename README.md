@@ -1,6 +1,6 @@
 # Patsch9 Food Settings – Lebensmittel
 
-Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährwertdaten und eigene Rezepturen. **Version 2026.11.1 ist für den ersten GitHub-Release vorbereitet.** WooCommerce wird benötigt, Germanized/Germanized Pro nicht. Es wird kein Code aus Germanized Pro übernommen und keine Lizenzprüfung umgangen.
+Eigenständiges WooCommerce-Plugin für Lebensmittelangaben, öffentliche Nährwertdaten und eigene Rezepturen. **Version 2026.11.1 ist für den ersten GitHub-Release vorbereitet.** WooCommerce ist Voraussetzung; weitere Plugins sind für die Lebensmittelangaben nicht erforderlich.
 
 ## Funktionen
 
@@ -71,10 +71,10 @@ Für die Shopanzeige werden die passenden **offiziellen Grafiken und Nutzungsrec
 
 ## Grenzen des Umfangs
 
-- **Kein vollständiger Germanized-Pro-Klon**: keine Pfandabrechnung, Grundpreisberechnung, altersabhängigen Verkaufssperren, Rechtsdokumente oder automatische Auszeichnung sämtlicher lebensmittelrechtlicher Sonderfälle.
-- Grundpreise lassen sich z. B. weiterhin mit Germanized Free pflegen. Die Lebensmittelfelder dieses Plugins sind davon unabhängig.
+- Nicht enthalten: Pfandabrechnung, Grundpreisberechnung, altersabhängige Verkaufssperren, Rechtsdokumente oder die automatische Auszeichnung sämtlicher lebensmittelrechtlicher Sonderfälle.
+- Grundpreise und weitere gesetzliche Shop-Angaben müssen unabhängig von den Lebensmittelfeldern dieses Plugins eingerichtet und geprüft werden.
 - **Variable Produkte:** gemeinsame Angaben nur nach ausdrücklicher Bestätigung identischer Daten **einschließlich Füllmengen** aller Varianten. Abweichende Varianten in dieser Version als separate einfache Produkte anlegen. Keine automatische Vererbung auf abweichende Varianten.
-- Keine Migration oder Synchronisation proprietärer Germanized-Pro-Metadaten. Bei gleichzeitiger Nutzung doppelten Inhalt im Theme selbst vermeiden.
+- Bei paralleler Ausgabe von Lebensmittelangaben durch das Theme oder andere Erweiterungen doppelte Inhalte vermeiden.
 - Keine automatische Aussage „vegan“, „glutenfrei“, „Bio“, gesundheitsbezogene Werbung oder Analyse von Kreuzkontamination. BLS-Nährwerte enthalten keine belastbare Allergenliste.
 - Keine Chargen-, Rückruf-, Etiketten-/PDF- oder konkrete MHD-Verwaltung, keine Mengenprozente/QUID-Automatik, kein Export in allgemeine Ernährungsdatenbanken.
 - Das Plugin speichert Daten, übernimmt aber keine Garantie für vollständige Lebensmittelkennzeichnung. Ob eine Nährwertdeklaration im Einzelfall erforderlich ist oder eine Ausnahme gilt, wird nicht entschieden. Eine Zutaten-/Allergenanzeige ohne Tabelle ist möglich, wenn sämtliche Nährwertfelder leer bleiben.
@@ -120,7 +120,7 @@ Der Workflow `Plugin checks` prüft PHP 8.1/8.3/8.4, Domänen-/Referenz-/Datente
 
 Release-Tags verwenden das Schema `YYYY.MM.N`, optional `-alphaN` oder `-betaN`, ohne führendes `v`. Der Tag ist die autoritative Release-Version und muss auf einen Commit in `main` zeigen, der zu einem gemergten Pull Request gehört. Alpha-/Beta-Tags werden als GitHub-Prereleases veröffentlicht. Es gibt keinen WordPress.org-/SVN-Deploy und keinen automatischen Updater; GitHub-Updates werden per ZIP installiert. Ablauf: [VERSIONING.md](VERSIONING.md). Sicherheitskonzept und Meldungen: [SECURITY.md](SECURITY.md).
 
-Referenzen: [Germanized-Funktionsbeschreibung](https://vendidero.de/doc/woocommerce-germanized/lebensmittel-auszeichnen), [offizieller Nutri-Score-Rechner und Nutzungsbedingungen](https://www.santepubliquefrance.fr/en/nutrition-and-physical-activity/nutri-score), [LMIV, VO (EU) 1169/2011](https://eur-lex.europa.eu/eli/reg/2011/1169/oj).
+Referenzen: [offizieller Nutri-Score-Rechner und Nutzungsbedingungen](https://www.santepubliquefrance.fr/en/nutrition-and-physical-activity/nutri-score), [LMIV, VO (EU) 1169/2011](https://eur-lex.europa.eu/eli/reg/2011/1169/oj).
 
 ## Lizenz
 

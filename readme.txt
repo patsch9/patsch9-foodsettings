@@ -14,7 +14,7 @@ Lebensmittelangaben, lokale BLS-Nährwertsuche, Barcodeimport und Rezeptberechnu
 
 == Description ==
 
-Erste testbare Version. Zutaten, Allergene, Nährwertdeklaration und weitere Lebensmittelangaben im klassischen WooCommerce-Produkteditor pflegen. Germanized Pro wird nicht benötigt.
+Erste testbare Version. Zutaten, Allergene, Nährwertdeklaration und weitere Lebensmittelangaben im klassischen WooCommerce-Produkteditor pflegen.
 
 Lebensmittel werden direkt über die Produktoption „Lebensmittel (P9)“ in der Kopfzeile der WooCommerce-Produktdaten aktiviert. Erst dann wird der Lebensmitteldaten-Reiter eingeblendet. Für tatsächlich individuell nach Kundenauswahl oder -bestimmung angefertigte Waren kann pro Produkt optional eine verpflichtende Checkout-Bestätigung zum fehlenden Widerrufsrecht nach § 312g Abs. 2 Nr. 1 BGB aktiviert werden. Der Lebensmittelstatus allein aktiviert diese Bestätigung nicht und schließt ein Widerrufsrecht nicht automatisch aus.
 
@@ -24,7 +24,7 @@ Das zusätzliche mehrzeilige Feld „Zutatenhinweise“ nimmt ergänzende Warnte
 
 Nutri-Score-Berechnung nach dem aktualisierten Algorithmus 2023. Für eine öffentliche Anzeige sind passende Nutzungsrechte und eigene offizielle Grafiken erforderlich. Importierte Angaben, Allergene und Rezeptvorschläge müssen vor Freigabe selbst überprüft werden.
 
-Kein vollständiger Ersatz für sämtliche Germanized-Pro-Funktionen. Keine Pfandabrechnung, automatische rechtliche Prüfung oder Varianten mit abweichender Zusammensetzung. Umfang, Anleitung und Grenzen: README.md im Repository.
+Nicht enthalten: Pfandabrechnung, automatische rechtliche Prüfung oder Varianten mit abweichender Zusammensetzung. Umfang, Anleitung und Grenzen: README.md im Repository.
 
 === External services ===
 
@@ -44,9 +44,9 @@ Nutri-Score-Grafiken werden nicht von einem externen Dienst abgerufen. Offiziell
 
 == Frequently Asked Questions ==
 
-= Ist Germanized erforderlich? =
+= Sind weitere Plugins erforderlich? =
 
-Nein. Grundpreise und andere Shop-Pflichten müssen unabhängig davon eingerichtet werden.
+Außer WooCommerce werden keine weiteren Plugins vorausgesetzt. Grundpreise und andere Shop-Pflichten müssen unabhängig davon eingerichtet werden.
 
 = Schließt die Kennzeichnung als Lebensmittel das Widerrufsrecht aus? =
 
